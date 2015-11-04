@@ -209,7 +209,7 @@ struct nav {
 	double downVelocity_nav_mps;		///< [m/sec], down velocity estimate
 	double rollAngle_nav_rads;		///< [rad], Euler roll angle estimate
 	double pitchAngle_nav_rads;		///< [rad], Euler pitch angle estimate
-	double yawAngle_nav_rad;		///< [rad], Euler yaw angle estimate
+	double yawAngle_nav_rads;		///< [rad], Euler yaw angle estimate
 	double quat_nav[4];	///< Quaternions estimate
 	double accelerometerBias_nav_mpsSq[3];	///< [m/sec^2], accelerometer bias estimate
 	double gyroBias_nav_rps[3];	///< [rad/sec], rate gyro bias estimate
