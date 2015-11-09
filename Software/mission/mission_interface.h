@@ -2,24 +2,11 @@
 #ifndef MISSION_INTERFACE_H_
 #define MISSION_INTERFACE_H_
 
-extern void init_mission(
-		struct sensordata *sensorData_ptr,	///< pointer to sensorData structure
-		struct nav *navData_ptr,			///< pointer to navData structure
-		struct mission *missionData_ptr		///< pointer to missionData structure
-);
+extern void init_mission();
 
-extern void get_mission(
-		struct sensordata *sensorData_ptr,	///< pointer to sensorData structure
-		struct nav *navData_ptr,			///< pointer to navData structure
-		struct mission *missionData_ptr		///< pointer to missionData structure
-);
-
+extern void get_mission();
 
 /// Standard function to call the mission manager
-extern void run_mission(
-		struct sensordata *sensorData_ptr,	///< pointer to sensorData structure
-		struct nav *navData_ptr,			///< pointer to navData structure
-		struct mission *missionData_ptr		///< pointer to missionData structure
-);
+extern void run_mission();
 
 #endif /* MISSION_INTERFACE_H_ */
