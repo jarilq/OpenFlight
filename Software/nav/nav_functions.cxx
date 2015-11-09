@@ -1,4 +1,4 @@
-/*! \file nav_functions.c
+/*! \file nav_functions.cxx
  *	\brief Auxiliary functions for nav filter
  *
  *	\details
@@ -26,7 +26,8 @@
 
 #include <math.h>
 #include "../utils/matrix.h"
-#include "nav_functions.h"
+#include "nav_functions.hxx"
+#include "../props.hxx"
 
 /*=================================================================*/
 MATRIX eul2dcm(MATRIX euler, MATRIX dcm)
