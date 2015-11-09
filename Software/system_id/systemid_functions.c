@@ -16,21 +16,6 @@
 #include "../globaldefs.h"
 #include "systemid_interface.h"
 
-extern void init_system_id(double time, 			///< [sec], time since in autopilot mode
-		struct sensordata *sensorData_ptr,	///< pointer to sensorData structure
-		struct nav *navData_ptr,			///< pointer to navData structure
-		struct control *controlData_ptr,		///< pointer to controlData structure
-		struct mission *missionData_ptr
-		);
-
-extern void get_system_id(double time, 			///< [sec], time since in autopilot mode
-		struct sensordata *sensorData_ptr,	///< pointer to sensorData structure
-		struct nav *navData_ptr,			///< pointer to navData structure
-		struct control *controlData_ptr,		///< pointer to controlData structure
-		struct mission *missionData_ptr
-		);
-
-
 double doublet(double t0, double currentTime, double duration, double amplitude) {
 	double t = currentTime; // simulink current time
 
