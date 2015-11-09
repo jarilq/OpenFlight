@@ -154,7 +154,7 @@ struct inceptor {
 	double yaw;			///< yaw stick command from the pilot, ND
 	double roll;		///< roll stick command from the pilot, ND
 	double mode;		//added to run with mAEWing1 mission code
-	double select;		//added to run with mAEWing1 mission code
+	double selected;		//added to run with mAEWing1 mission code
 };
 
 /// Mission manager Data structure
