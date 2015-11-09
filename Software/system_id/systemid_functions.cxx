@@ -13,42 +13,44 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "../globaldefs.h"
+#include "../props.hxx"
+//#include "../globaldefs.h"
 #include "systemid_interface.h"
+#define PI      3.14159265358979    ///< pi */
 
-double doublet(double t0, double currentTime, double duration, double amplitude) {
-	double t = currentTime; // simulink current time
+double doublet(double t0_sec, double currentTime_sec, double duration, double amplitude_rad) {
+	double t = currentTime_sec; // simulink current time
 
-	if (t < t0)
+	if (t < t0_sec)
 		return 0;
-	else if ((t >= t0) && (t < t0 + 0.5 * duration))
-		return amplitude;
-	else if ((t >= t0 + 0.5 * duration) && (t < t0 + duration))
-		return -amplitude;
-	if (t >= t0 + duration)
+	else if ((t >= t0_sec) && (t < t0_sec + 0.5 * duration))
+		return amplitude_rad;
+	else if ((t >= t0_sec + 0.5 * duration) && (t < t0_sec + duration))
+		return -amplitude_rad;
+	if (t >= t0_sec + duration)
 		return 0;
 
 	return 0;
 }
 /*****************************************************************************/
-double doublet121(double t0, double currentTime, double dur1, double dur2,
-		double dur3, double amplitude) {
-	double t = currentTime; // simulink current time
+double doublet121(double t0_sec, double currentTime_sec, double durPulse1_sec, double durPulse2_sec,
+		double durPulse3_sec, double amplitude_rad) {
+	double t = currentTime_sec; // simulink current time
 
-	if (t < t0) {
+	if (t < t0_sec) {
 		return 0;
 	} else {
-		if ((t >= t0) && (t <= t0 + dur1)) {
-			return amplitude;
+		if ((t >= t0_sec) && (t <= t0_sec + durPulse1_sec)) {
+			return amplitude_rad;
 		}
 
-		if ((t >= t0 + dur1 + dur2) && (t <= t0 + dur1 + dur2 + dur3)) {
-			return -amplitude;
+		if ((t >= t0_sec + durPulse1_sec + durPulse2_sec) && (t <= t0_sec + durPulse1_sec + durPulse2_sec + durPulse3_sec)) {
+			return -amplitude_rad;
 		}
 
-		if ((t >= t0 + dur1 + 2 * dur2 + dur3) && (t <= t0 + 2 * dur1 + 2
-				* dur2 + dur3)) {
-			return amplitude;
+		if ((t >= t0_sec + durPulse1_sec + 2 * durPulse2_sec + durPulse3_sec) && (t <= t0_sec + 2 * durPulse1_sec + 2
+				* durPulse2_sec + durPulse3_sec)) {
+			return amplitude_rad;
 		}
 
 	}
@@ -56,7 +58,7 @@ double doublet121(double t0, double currentTime, double dur1, double dur2,
 	return 0;
 }
 
-void one_multi_sine(double t, double *dsurf, double amp) {
+void one_multi_sine(double t_sec, double *dsurf, double amp_rad) {
 	// frequencies, phase shifts, and amplitude
 	static double freq[19] = { 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
 			1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0 };
@@ -72,15 +74,15 @@ void one_multi_sine(double t, double *dsurf, double amp) {
 	int i;
 
 	for (i = 0; i < 19; i++) {
-		dtmp += cos(freq[i] * 2 * PI * t + phase[i]) * sqrt(1.0 / 19) * amp; //rad, multi-sine signal
+		dtmp += cos(freq[i] * 2 * PI * t_sec + phase[i]) * sqrt(1.0 / 19) * amp_rad; //rad, multi-sine signal
 	}
 	// assign control surface command to pointers
 	*dsurf = dtmp;
 
 }
 
-void two_multi_sine(double t, double *dsurf1, double *dsurf2, double amp1,
-		double amp2) {
+void two_multi_sine(double t, double *dsurf1, double *dsurf2, double amp1_rad,
+		double amp2_rad) {
 	// frequencies, phase shifts, and amplitude
 	static double freq1[9] = { 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8 };
 	static double phase1[9] = { -0.137821438846238, -1.08680859297711,
@@ -99,8 +101,8 @@ void two_multi_sine(double t, double *dsurf1, double *dsurf2, double amp1,
 	int i;
 
 	for (i = 0; i < 9; i++) {
-		dtmp1 += cos(freq1[i] * 2 * PI * t + phase1[i]) * sqrt(1.0 / 9) * amp1; //rad, multi-sine signal
-		dtmp2 += cos(freq2[i] * 2 * PI * t + phase2[i]) * sqrt(1.0 / 9) * amp2; //rad, multi-sine signal
+		dtmp1 += cos(freq1[i] * 2 * PI * t + phase1[i]) * sqrt(1.0 / 9) * amp1_rad; //rad, multi-sine signal
+		dtmp2 += cos(freq2[i] * 2 * PI * t + phase2[i]) * sqrt(1.0 / 9) * amp2_rad; //rad, multi-sine signal
 	}
 	// assign control surface command to pointers
 	*dsurf1 = dtmp1;
@@ -108,7 +110,7 @@ void two_multi_sine(double t, double *dsurf1, double *dsurf2, double amp1,
 
 }
 
-void three_multi_sine(double t, double *de, double *da, double*dr) {
+void three_multi_sine(double t_sec, double *elevatorSurf, double *aileronSurf, double*rudderSurf) {
 	// elevator frequencies and phase shifts
 	static double freq_e[6] = { 0.2, 0.5, 0.8, 1.1, 1.4, 1.7 };
 	static double phase_e[6] = { 1.58451760333862, -0.258368383798533,
@@ -127,20 +129,21 @@ void three_multi_sine(double t, double *de, double *da, double*dr) {
 			2.50176467719111, 1.58251088240054, 0.158685053706918,
 			1.76461734166891 };
 	static double amp_r = 1.0; // amplitude, in degrees
-	double detmp = 0;
-	double datmp = 0;
-	double drtmp = 0; // dummy variables
+	double elevatorSurftmp = 0;
+	double aileronSurftmp = 0;
+	double rudderSurftmp = 0; // dummy variables
 	int i;
 
 	// Create multi sine inputs. There are 6 frequencies in each signal.
 	for (i = 0; i < 6; i++) {
-		detmp += cos(freq_e[i] * 2 * PI * t + phase_e[i]) * sqrt(1.0 / 6) * amp_e;//rad, elevator multi-sine
-		datmp += cos(freq_a[i] * 2 * PI * t + phase_a[i]) * sqrt(1.0 / 6) * amp_a;//rad, aileron multi-sine
-		drtmp += cos(freq_r[i] * 2 * PI * t + phase_r[i]) * sqrt(1.0 / 6) * amp_r;//rad, rudder multi-sine
+		elevatorSurftmp += cos(freq_e[i] * 2 * PI * t_sec + phase_e[i]) * sqrt(1.0 / 6) * amp_e;//rad, elevator multi-sine
+		aileronSurftmp += cos(freq_a[i] * 2 * PI * t_sec + phase_a[i]) * sqrt(1.0 / 6) * amp_a;//rad, aileron multi-sine
+		rudderSurftmp += cos(freq_r[i] * 2 * PI * t_sec + phase_r[i]) * sqrt(1.0 / 6) * amp_r;//rad, rudder multi-sine
 	}
 	// assign control surface commands to pointers
-	*de = detmp;
-	*da = datmp;
-	*dr = drtmp;
+	*elevatorSurf = elevatorSurftmp;
+	*aileronSurf = aileronSurftmp;
+	*rudderSurf = rudderSurftmp;
 
 }
+
