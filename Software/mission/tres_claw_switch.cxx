@@ -25,14 +25,18 @@ static double mode = 0.0;
 static double selected = 0.0;
 
 extern void init_mission(){
+	//Variables for concatenating path
+	char mission[] = "/mission";
+	char inceptor[] = "/inceptor";
+
 	//Property node initialization
 	//Output variables
-	claw_mode_node = fgGetNode("/mission/claw_mode");
-	claw_select_node = fgGetNode("mission/claw_select");
+	claw_mode_node = fgGetNode(mission,"/claw_mode");
+	claw_select_node = fgGetNode(mission,"/claw_select");
 
 	//Input variables
-	mode_node = fgGetNode("inceptor/mode");
-	selected_node = fgGetNode("inceptor/select");
+	mode_node = fgGetNode(inceptor,"/mode");
+	selected_node = fgGetNode(inceptor,"/select");
 
 	// Read values from property tree
 	// Input local variables
