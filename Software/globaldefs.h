@@ -73,7 +73,7 @@ struct imu {
 	float  T_imu_degC;	///< [degC], temperature of IMU sensor
 	float  Vs_imu_vol;	///< [Volts], supply voltage of IMU sensor
 	double adc_imu_cou; ///< [counts], ADC reading
-	enum errdefs_imu_nu; ///< IMU status
+	enum errdefs err_type_imu; ///< IMU status
 	double time_imu_sec; ///< [sec], timestamp of IMU data
 };
 
@@ -105,7 +105,7 @@ struct gps {
 	unsigned short satV_gps_nu; ///< Number satellites used in the position solution
 	unsigned short nValid_gps_nd;///< flag indicating whether the solution is valid, 0 = valid
 	unsigned short GPSw_gps_week;///< GPS week since current epoch.
-	enum errdefs_gps_nu;	///< GPS status
+	enum errdefs err_type_gps;	///< GPS status
 	int bRate_gps_nu;		///< Baud rate for serial port
 	char* portName_gps_nd;		///< Name of serial port
 	int port_gps_nu;			///< handle for accessing serial port
@@ -222,7 +222,7 @@ struct nav {
 	double covarianceGyroBias_nav_rads[3];	///< [rad], covariance estimate for rate gyro bias
 	double Pasf_nav_rads[3];	///< [rad], covariance estimate for accelerometer scale factor
 	double Pgsf_nav_rads[3];	///< [rad], covariance estimate for rate gyro scale factor
-	enum errdefs_nav_nu;	///< NAV filter status
+	enum errdefs err_type_nav;	///< NAV filter status
 	double timestm_nav_sec;			///< [sec], timestamp of NAV filter
 	double wn_nav_mps;			///< [m/s], estimated wind speed in the north direction
 	double we_nav_mps;			///< [m/s], estimated wind speed in the east direction
@@ -262,7 +262,7 @@ struct researchNav {
 	double Pgb_rnav_rads[3];	///< [rad], covariance estimate for rate gyro bias
 	double Pasf_rnav_rads[3];	///< [rad], covariance estimate for accelerometer scale factor
 	double Pgsf_rnav_rads[3];	///< [rad], covariance estimate for rate gyro scale factor
-	enum errdefs_rnav_nu;	///< NAV filter status
+	enum errdefs err_type_rnav;	///< NAV filter status
 	double time_rnav_sec;			///< [sec], timestamp of NAV filter
 	double wn_rnav_mps;			///< [m/s], estimated wind speed in the north direction
 	double we_rnav_mps;			///< [m/s], estimated wind speed in the east direction
