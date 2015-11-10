@@ -22,7 +22,7 @@
 
 #if PROPS_STANDALONE
 
-#include <string>
+#include <string.h>
 #include <iostream>
 
 using std::string;
@@ -1283,13 +1283,17 @@ private:
 extern SGPropertyNode *props;
 
 // borrowed from fg_props.cxx
-inline SGPropertyNode *fgGetNode (const char *path, bool create = false)
+inline SGPropertyNode *fgGetNode (char *partA, char *partB, bool create = false) //changed from original file to allow concatenation
 {
+	strcat(partA,partB);
+	const char *path = partA;
   return props->getNode(path, create);
 }
 
-inline SGPropertyNode *fgGetNode (const char *path, int index, bool create = false)
+inline SGPropertyNode *fgGetNode (char *partA, char *partB, int index, bool create = false)//changed from original file to allow concatenation
 {
+	strcat(partA,partB);
+	const char *path = partA;
   return props->getNode(path, index, create);
 }
 
