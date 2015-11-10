@@ -64,16 +64,16 @@ struct imu {
 	double xAcceleration_imu_mpsSq;	///< [m/sec^2], body X axis acceleration
 	double yAcceleration_imu_mpsSq;	///< [m/sec^2], body Y axis acceleration
 	double zAcceleration_imu_mpsSq;	///< [m/sec^2], body Z axis acceleration
-	double hx;	///< [Gauss], body X axis magnetic field
-	double hy;	///< [Gauss], body Y axis magnetic field
-	double hz;	///< [Gauss], body Z axis magnetic field
-	double phi; ///< [rad], Euler roll angle. Only used if IMU sensor reports attitude.
-	double the; ///< [rad], Euler pitch angle. Only used if IMU sensor reports attitude.
-	double psi; ///< [rad], Euler yaw angle. Only used if IMU sensor reports attitude.
-	float  T;	///< [degC], temperature of IMU sensor
-	float  Vs;	///< [Volts], supply voltage of IMU sensor
-	double adc; ///< [counts], ADC reading
-	enum errdefs err_type_imu; ///< IMU status
+	double x_imu_gau;	///< [Gauss], body X axis magnetic field
+	double y_imu_gau;	///< [Gauss], body Y axis magnetic field
+	double z-imu_gau;	///< [Gauss], body Z axis magnetic field
+	double phi_imu_rads; ///< [rad], Euler roll angle. Only used if IMU sensor reports attitude.
+	double the_imu_rads; ///< [rad], Euler pitch angle. Only used if IMU sensor reports attitude.
+	double psi_imu_rads; ///< [rad], Euler yaw angle. Only used if IMU sensor reports attitude.
+	float  T_imu_degC;	///< [degC], temperature of IMU sensor
+	float  Vs_imu_vol;	///< [Volts], supply voltage of IMU sensor
+	double adc_imu_cou; ///< [counts], ADC reading
+	enum errdefs_imu_nu; ///< IMU status
 	double time_imu_sec; ///< [sec], timestamp of IMU data
 };
 
@@ -85,118 +85,118 @@ struct gps {
 	double eastVelocity_gps_mps;	///< [m/sec], East velocity
 	double northVelocity_gps_mps;	///< [m/sec], North velocity
 	double downVelocity_gps_mps;	///< [m/sec], Down velocity
-	double Xe;	///< [m], X position, ECEF
-	double Ye;	///< [m], Y position, ECEF
-	double Ze;	///< [m], Z position, ECEF
-	double Ue;	///< [m/sec], X velocity, ECEF
-	double Ve;	///< [m/sec], Y velocity, ECEF
-	double We;	///< [m/sec], Z velocity, ECEF
-    double sig_N; ///< [m], Position error standard deviation in the North direction
-	double sig_E; ///< [m], Position error standard deviation in the East direction
-	double sig_D; ///< [m], Position error standard deviation in the Down direction
-    double sig_vn; ///< [m/sec], Velocity error standard deviation in the North direction
-    double sig_ve; ///< [m/sec], Velocity error standard deviation in the East direction
-    double sig_vd; ///< [m/sec], Velocity error standard deviation in the Down direction
-	double GPS_TOW;	///< [sec], GPS Time Of Week
-	double courseOverGround;///< [rad], course over the ground, relative to true North
-	double speedOverGround;	///< [rad], speed over the ground
+	double Xe_gps_m;	///< [m], X position, ECEF
+	double Ye_gps_m;	///< [m], Y position, ECEF
+	double Ze_gps_m;	///< [m], Z position, ECEF
+	double Ue_gps_mps;	///< [m/sec], X velocity, ECEF
+	double Ve_gps_mps;	///< [m/sec], Y velocity, ECEF
+	double We_gps_mps;	///< [m/sec], Z velocity, ECEF
+    	double sigN_gps_m; ///< [m], Position error standard deviation in the North direction
+	double sigE_gps_m; ///< [m], Position error standard deviation in the East direction
+	double sigD_gps_m; ///< [m], Position error standard deviation in the Down direction
+    	double sigvn_gps_mps; ///< [m/sec], Velocity error standard deviation in the North direction
+    	double sigve_gps_mps; ///< [m/sec], Velocity error standard deviation in the East direction
+    	double sigvd_gps_mps; ///< [m/sec], Velocity error standard deviation in the Down direction
+	double TOW_gps_sec;	///< [sec], GPS Time Of Week
+	double cogN_gps_rads;///< [rad], course over the ground, relative to true North
+	double sog_gps_rads;	///< [rad], speed over the ground
 	double time_gps_sec;	///< [sec], timestamp of GPS data
-	unsigned short newData;	///< [bool], flag set when GPS data has been updated
-	unsigned short satVisible; ///< Number satellites used in the position solution
-	unsigned short navValid;///< flag indicating whether the solution is valid, 0 = valid
-	unsigned short GPS_week;///< GPS week since current epoch.
-	enum errdefs err_type_GPS;	///< GPS status
-	int baudRate;		///< Baud rate for serial port
-	char* portName;		///< Name of serial port
-	int port;			///< handle for accessing serial port
-    unsigned char* localBuffer; ///< local buffer to store partial serial data packets
-    int bytesInLocalBuffer; ///< number of bytes in the local buffer
-    int readState;			///< current state of serial data reader function
-    int read_calls;			///< number of times the read_gps function has been called
+	unsigned short newData_gps_nd;	///< [bool], flag set when GPS data has been updated
+	unsigned short satV_gps_nu; ///< Number satellites used in the position solution
+	unsigned short nValid_gps_nd;///< flag indicating whether the solution is valid, 0 = valid
+	unsigned short GPSw_gps_week;///< GPS week since current epoch.
+	enum errdefs_gps_nu;	///< GPS status
+	int bRate_gps_nu;		///< Baud rate for serial port
+	char* portName_gps_nd;		///< Name of serial port
+	int port_gps_nu;			///< handle for accessing serial port
+	unsigned char* locBuffer_gps_nd; ///< local buffer to store partial serial data packets
+	int bytLocBuffer_gps_bytes; ///< number of bytes in the local buffer
+	int readState_gps_nu;			///< current state of serial data reader function
+    	int readcalls_gps_nu;			///< number of times the read_gps function has been called
 
 };
 
 /// Air Data Structure
 struct airdata {
-	double h;		///< [m], barometric altitude above ground level (AGL)
-	double ias;     ///< [m/sec], indicated airspeed
-	double h_filt;	///< [m], filtered altitude
-	double ias_filt;	///< [m/s], filtered airspeed
-	double Ps;		///< [KPa], static pressure
-	double Pd;		///< [KPa], dynamic pressure
-	double aoa;		///< [rad], angle of attack from 5-hole Pitot probe
-	double aos;		///< [rad], angle of sideslip from 5-hole Pitot probe
-	double l_alpha; ///< [rad], angle of attack, from left vane
-	double r_alpha;	///< [rad], angle of attack, from right vane
-	double l_beta;	///< [rad], angle of sideslip, from left vane
-	double r_beta;	///< [rad], angle of sideslip, from right vane
-	double Pd_aoa;  ///< [KPa], dynamic pressure for aoa, from 5-hole Pitot probe
-	double Pd_aos;	///< [KPa], dynamic pressure for aos, from 5-hole Pitot probe
+	double h_airdata_m;		///< [m], barometric altitude above ground level (AGL)
+	double ias_airdata_mps;     ///< [m/sec], indicated airspeed
+	double hfilt_airdata_m;	///< [m], filtered altitude
+	double iasfilt_airdata_mps;	///< [m/s], filtered airspeed
+	double Ps_airdata_KPa;		///< [KPa], static pressure
+	double Pd_airdata_KPa;		///< [KPa], dynamic pressure
+	double aoa_airdata_rads;		///< [rad], angle of attack from 5-hole Pitot probe
+	double aos_airdata_rads;		///< [rad], angle of sideslip from 5-hole Pitot probe
+	double lalpha_airdata_rads; ///< [rad], angle of attack, from left vane
+	double ralpha_airdata_rads;	///< [rad], angle of attack, from right vane
+	double lbeta_airdata_rads;	///< [rad], angle of sideslip, from left vane
+	double rbeta_airdata_rads;	///< [rad], angle of sideslip, from right vane
+	double Pdaoa_airdata_KPa;  ///< [KPa], dynamic pressure for aoa, from 5-hole Pitot probe
+	double Pdaos_airdata_KPa;	///< [KPa], dynamic pressure for aos, from 5-hole Pitot probe
 	double bias_airdata[10];///< array for storing biases for air data.
-	unsigned short status;	///< status bitfield for air data sensors.
+	unsigned short status_airdata_nd;	///< status bitfield for air data sensors.
 };
 
 /// Control surface deflections
 struct surface {
-	double dthr_pos;	///< [0-1], measured throttle position
-	double de_pos;		///< [rad], measured elevator position, +TED
-	double dr_pos; 		///< [rad], measured rudder position, +TEL
-	double da_l_pos;	///< [rad], measured left aileron position, +TED
-	double da_r_pos;	///< [rad], measured right aileron position, +TED
-	double df_l_pos;	///< [rad], measured left flap position, +TED
-	double df_r_pos;	///< [rad], measured right flap position, +TED
+	double thropos_surface_nu;	///< [0-1], measured throttle position
+	double elevpos_surface_rads;		///< [rad], measured elevator position, +TED
+	double rudpos_surface_rads; 		///< [rad], measured rudder position, +TEL
+	double lailpos_surface_rads;	///< [rad], measured left aileron position, +TED
+	double railpos_surface_rads;	///< [rad], measured right aileron position, +TED
+	double lflapos_surface_rads;	///< [rad], measured left flap position, +TED
+	double rflapos_surface_rads;	///< [rad], measured right flap position, +TED
 };
 
 /// Pilot inceptor Data structure
 struct inceptor {
-	double throttle;	///< throttle stick command from the pilot, ND
-	double pitch;		///< pitch stick command from the pilot, ND
-	double yaw;			///< yaw stick command from the pilot, ND
-	double roll;		///< roll stick command from the pilot, ND
-	double mode;		//added to run with mAEWing1 mission code
-	double selected;		//added to run with mAEWing1 mission code
+	double thro_inceptor_nu;	///< throttle stick command from the pilot, ND
+	double pit_inceptor_nu;		///< pitch stick command from the pilot, ND
+	double yaw_inceptor_nu;			///< yaw stick command from the pilot, ND
+	double rol_inceptor_nu;		///< roll stick command from the pilot, ND
+	double mode_inceptor_nu;		//added to run with mAEWing1 mission code
+	double select_inceptor_nu;		//added to run with mAEWing1 mission code
 };
 
 /// Mission manager Data structure
 struct mission {
-	unsigned short mode;		///< mode variable; 0 = dump data, 1 = manual control, 2 = autopilot control
-	unsigned short run_num;		///< counter for number of autopilot engagements
-	unsigned short researchNav;	///< mode variable; 0 = standard nav filter, 1 = research nav filter
-	unsigned short claw_mode;		//added to run with mAEWing1 mission code
-	unsigned short claw_select;		//added to run with mAEWing1 mission code
+	unsigned short mode_mission_nd;		///< mode variable; 0 = dump data, 1 = manual control, 2 = autopilot control
+	unsigned short rnum_mission_nu;		///< counter for number of autopilot engagements
+	unsigned short reNav_mission_nd;	///< mode variable; 0 = standard nav filter, 1 = research nav filter
+	unsigned short clawmode_mission_nd;		//added to run with mAEWing1 mission code
+	unsigned short clawselect_mission_nd;		//added to run with mAEWing1 mission code
 };
 
 /// Control Data structure
 struct control {
-	double dthr;		///< [0-1], throttle command
-	double de;			///< [rad], elevator command, +TED
-	double dr; 			///< [rad], rudder command, +TEL
-	double da_l;		///< [rad], left aileron command, +TED
-	double da_r;		///< [rad], right aileron command, +TED
-	double df_l;		///< [rad], left flap command, +TED
-	double df_r;		///< [rad], right flap command, +TED
-	double phi_cmd;		///< [rad], Euler roll angle command
-	double theta_cmd;	///< [rad], Euler pitch angle command
-	double psi_cmd;		///< [rad], Euler yaw angle command
-	double p_cmd;		///< [rad/sec], body axis roll rate command
-	double q_cmd;		///< [rad/sec], body axis pitch rate command
-	double r_cmd;		///< [rad/sec], body axis yaw rate command
-	double ias_cmd;		///< [m/sec], airspeed command
-	double h_cmd;		///< [m], altitude command
-	double gndtrk_cmd;	///< [rad], ground track angle command, relative to true north
-	double aoa_cmd;		///< [rad], angle of attack command
-	double aos_cmd;		///< [rad], angle of sideslip command
-	double gamma_cmd;	///< [rad], flight path angle command
-	double signal_0;     ///< user defined dummy variable
-	double signal_1;     ///< user defined dummy variable
-	double signal_2;     ///< user defined dummy variable
-	double signal_3;     ///< user defined dummy variable
-	double signal_4;     ///< user defined dummy variable
-	double signal_5;     ///< user defined dummy variable
-	double signal_6;     ///< user defined dummy variable
-	double signal_7;     ///< user defined dummy variable
-	double signal_8;     ///< user defined dummy variable
-	double signal_9;     ///< user defined dummy variable
+	double throcmd_control_nu;		///< [0-1], throttle command
+	double elevcmd_control_rads;			///< [rad], elevator command, +TED
+	double rudcmd_control_rads; 			///< [rad], rudder command, +TEL
+	double lailcmd_control_rads;		///< [rad], left aileron command, +TED
+	double railcmd_control_rads;		///< [rad], right aileron command, +TED
+	double lflacmd_control_rads;		///< [rad], left flap command, +TED
+	double rflacmd_control_rads;		///< [rad], right flap command, +TED
+	double phicmd_control_rads;		///< [rad], Euler roll angle command
+	double thetcmd_control_rads;	///< [rad], Euler pitch angle command
+	double psicmd_control_rads;		///< [rad], Euler yaw angle command
+	double pcmd_control_rps;		///< [rad/sec], body axis roll rate command
+	double qcmd_control_rps;		///< [rad/sec], body axis pitch rate command
+	double rcmd_control_rps;		///< [rad/sec], body axis yaw rate command
+	double iascmd_control_mps;		///< [m/sec], airspeed command
+	double hcmd_control_m;		///< [m], altitude command
+	double gndtrkcmd_control_rads;	///< [rad], ground track angle command, relative to true north
+	double aoacmd_control_rads;		///< [rad], angle of attack command
+	double aoscmd_control_rads;		///< [rad], angle of sideslip command
+	double gammacmd_control_rads;	///< [rad], flight path angle command
+	double signal0_control_nu;     ///< user defined dummy variable
+	double signal1_control_nu;     ///< user defined dummy variable
+	double signal2_control_nu;     ///< user defined dummy variable
+	double signal3_control_nu;     ///< user defined dummy variable
+	double signal4_control_nu;     ///< user defined dummy variable
+	double signal5_control_nu;     ///< user defined dummy variable
+	double signal6_control_nu;     ///< user defined dummy variable
+	double signal7_control_nu;     ///< user defined dummy variable
+	double signal8_control_nu;     ///< user defined dummy variable
+	double signal9_control_nu;     ///< user defined dummy variable
 };
 
 /// Navigation Filter Data Structure
@@ -210,104 +210,104 @@ struct nav {
 	double rollAngle_nav_rads;		///< [rad], Euler roll angle estimate
 	double pitchAngle_nav_rads;		///< [rad], Euler pitch angle estimate
 	double yawAngle_nav_rads;		///< [rad], Euler yaw angle estimate
-	double quat_nav[4];	///< Quaternions estimate
+	double quat_nav_nu[4];	///< Quaternions estimate
 	double accelerometerBias_nav_mpsSq[3];	///< [m/sec^2], accelerometer bias estimate
 	double gyroBias_nav_rps[3];	///< [rad/sec], rate gyro bias estimate
-	double asf[3];	///< [m/sec^2], accelerometer scale factor estimate
-	double gsf[3];	///< [rad/sec], rate gyro scale factor estimate
+	double asf_nav_mpsSq[3];	///< [m/sec^2], accelerometer scale factor estimate
+	double gsf_nav_rps[3];	///< [rad/sec], rate gyro scale factor estimate
 	double covariancePosition_nav_rads[3];	///< [rad], covariance estimate for position
 	double covarianceVelocity_nav_rads[3];	///< [rad], covariance estimate for velocity
 	double covarianceAngles_nav_rads[3];	///< [rad], covariance estimate for angles
 	double covarianceAccelBias_nav_rads[3];	///< [rad], covariance estimate for accelerometer bias
 	double covarianceGyroBias_nav_rads[3];	///< [rad], covariance estimate for rate gyro bias
-	double Pasf[3];	///< [rad], covariance estimate for accelerometer scale factor
-	double Pgsf[3];	///< [rad], covariance estimate for rate gyro scale factor
-	enum errdefs err_type_nav;	///< NAV filter status
-	double time;			///< [sec], timestamp of NAV filter
-	double wn;			///< [m/s], estimated wind speed in the north direction
-	double we;			///< [m/s], estimated wind speed in the east direction
-	double wd;			///< [m/s], estimated wind speed in the down direction
-	double signal_0;     ///< user defined dummy variable
-	double signal_1;     ///< user defined dummy variable
-	double signal_2;     ///< user defined dummy variable
-	double signal_3;     ///< user defined dummy variable
-	double signal_4;     ///< user defined dummy variable
-	double signal_5;     ///< user defined dummy variable
-	double signal_6;     ///< user defined dummy variable
-	double signal_7;     ///< user defined dummy variable
-	double signal_8;     ///< user defined dummy variable
-	double signal_9;     ///< user defined dummy variable
+	double Pasf_nav_rads[3];	///< [rad], covariance estimate for accelerometer scale factor
+	double Pgsf_nav_rads[3];	///< [rad], covariance estimate for rate gyro scale factor
+	enum errdefs_nav_nu;	///< NAV filter status
+	double timestm_nav_sec;			///< [sec], timestamp of NAV filter
+	double wn_nav_mps;			///< [m/s], estimated wind speed in the north direction
+	double we_nav_mps;			///< [m/s], estimated wind speed in the east direction
+	double wd_nav_mps;			///< [m/s], estimated wind speed in the down direction
+	double signal0_nav_nu;     ///< user defined dummy variable
+	double signal1_nav_nu;     ///< user defined dummy variable
+	double signal2_nav_nu;     ///< user defined dummy variable
+	double signal3_nav_nu;     ///< user defined dummy variable
+	double signal4_nav_nu;     ///< user defined dummy variable
+	double signal5_nav_nu;     ///< user defined dummy variable
+	double signal6_nav_nu;     ///< user defined dummy variable
+	double signal7_nav_nu;     ///< user defined dummy variable
+	double signal8_nav_nu;     ///< user defined dummy variable
+	double signal9_nav_nu;     ///< user defined dummy variable
 };
 
 /// Research Navigation Filter Data Structure
 struct researchNav {
-	double lat;		///< [rad], geodetic latitude estimate
-	double lon;		///< [rad], geodetic longitude estimate
-	double alt;		///< [m], altitude relative to WGS84 estimate
-	double vn;		///< [m/sec], north velocity estimate
-	double ve;		///< [m/sec], east velocity estimate
-	double vd;		///< [m/sec], down velocity estimate
-	double phi;		///< [rad], Euler roll angle estimate
-	double the;		///< [rad], Euler pitch angle estimate
-	double psi;		///< [rad], Euler yaw angle estimate
-	double quat[4];	///< Quaternions estimate
-	double ab[3];	///< [m/sec^2], accelerometer bias estimate
-	double gb[3];	///< [rad/sec], rate gyro bias estimate
-	double asf[3];	///< [m/sec^2], accelerometer scale factor estimate
-	double gsf[3];	///< [rad/sec], rate gyro scale factor estimate
-	double Pp[3];	///< [rad], covariance estimate for position
-	double Pv[3];	///< [rad], covariance estimate for velocity
-	double Pa[3];	///< [rad], covariance estimate for angles
-	double Pab[3];	///< [rad], covariance estimate for accelerometer bias
-	double Pgb[3];	///< [rad], covariance estimate for rate gyro bias
-	double Pasf[3];	///< [rad], covariance estimate for accelerometer scale factor
-	double Pgsf[3];	///< [rad], covariance estimate for rate gyro scale factor
-	enum errdefs err_type;	///< NAV filter status
-	double time;			///< [sec], timestamp of NAV filter
-	double wn;			///< [m/s], estimated wind speed in the north direction
-	double we;			///< [m/s], estimated wind speed in the east direction
-	double wd;			///< [m/s], estimated wind speed in the down direction
-	double signal_0;     ///< user defined dummy variable
-	double signal_1;     ///< user defined dummy variable
-	double signal_2;     ///< user defined dummy variable
-	double signal_3;     ///< user defined dummy variable
-	double signal_4;     ///< user defined dummy variable
-	double signal_5;     ///< user defined dummy variable
-	double signal_6;     ///< user defined dummy variable
-	double signal_7;     ///< user defined dummy variable
-	double signal_8;     ///< user defined dummy variable
-	double signal_9;     ///< user defined dummy variable
+	double lat_rnav_rads;		///< [rad], geodetic latitude estimate
+	double lon_rnav_rads;		///< [rad], geodetic longitude estimate
+	double alt_rnav_m;		///< [m], altitude relative to WGS84 estimate
+	double vn_rnav_mps;		///< [m/sec], north velocity estimate
+	double ve_rnav_mps;		///< [m/sec], east velocity estimate
+	double vd_rnav_mps;		///< [m/sec], down velocity estimate
+	double phi_rnav_rads;		///< [rad], Euler roll angle estimate
+	double the_rnav_rads;		///< [rad], Euler pitch angle estimate
+	double psi_rnav_rads;		///< [rad], Euler yaw angle estimate
+	double quat_rnav_nu[4];	///< Quaternions estimate
+	double ab_rnav_mpsSq[3];	///< [m/sec^2], accelerometer bias estimate
+	double gb_rnav_rps[3];	///< [rad/sec], rate gyro bias estimate
+	double asf_rnav_mpsSq[3];	///< [m/sec^2], accelerometer scale factor estimate
+	double gsf_rnav_rps[3];	///< [rad/sec], rate gyro scale factor estimate
+	double Pp_rnav_rads[3];	///< [rad], covariance estimate for position
+	double Pv_rnav_rads[3];	///< [rad], covariance estimate for velocity
+	double Pa_rnav_rads[3];	///< [rad], covariance estimate for angles
+	double Pab_rnav_rads[3];	///< [rad], covariance estimate for accelerometer bias
+	double Pgb_rnav_rads[3];	///< [rad], covariance estimate for rate gyro bias
+	double Pasf_rnav_rads[3];	///< [rad], covariance estimate for accelerometer scale factor
+	double Pgsf_rnav_rads[3];	///< [rad], covariance estimate for rate gyro scale factor
+	enum errdefs_rnav_nu;	///< NAV filter status
+	double time_rnav_sec;			///< [sec], timestamp of NAV filter
+	double wn_rnav_mps;			///< [m/s], estimated wind speed in the north direction
+	double we_rnav_mps;			///< [m/s], estimated wind speed in the east direction
+	double wd_rnav_mps;			///< [m/s], estimated wind speed in the down direction
+	double signal0_rnav_nu;     ///< user defined dummy variable
+	double signal1_rnav_nu;     ///< user defined dummy variable
+	double signal2_rnav_nu;     ///< user defined dummy variable
+	double signal3_rnav_nu;     ///< user defined dummy variable
+	double signal4_rnav_nu;     ///< user defined dummy variable
+	double signal5_rnav_nu;     ///< user defined dummy variable
+	double signal6_rnav_nu;     ///< user defined dummy variable
+	double signal7_rnav_nu;     ///< user defined dummy variable
+	double signal8_rnav_nu;     ///< user defined dummy variable
+	double signal9_rnav_nu;     ///< user defined dummy variable
 };
 
 /// Combined sensor data structure
 struct sensordata {
-	double dr_in;
-	double da_l_in;
-	double da_r_in;
-	double de_in;
-	struct imu *imuData_ptr; 			///< pointer to imu data structure
-	struct gps *gpsData_ptr;			///< pointer to gps data structure
-	struct gps *gpsData_l_ptr;			///< pointer to left gps data structure
-	struct gps *gpsData_r_ptr;			///< pointer to right gps data structure
-	struct airdata *adData_ptr;			///< pointer to airdata data structure
-	struct surface *surfData_ptr;		///< pointer to surface data structure
-	struct inceptor *inceptorData_ptr;	///< pointer to pilot inceptor data structure
+	double drin_ssrdata_nu;
+	double dalin_ssrdata_nu;
+	double darin_ssrdata_nu;
+	double dein_ssrdata_nu;
+	struct imu *imuData_ssrdata_ptr; 			///< pointer to imu data structure
+	struct gps *gpsData_ssrdata_ptr;			///< pointer to gps data structure
+	struct gps *gpsDatal_ssrdata_ptr;			///< pointer to left gps data structure
+	struct gps *gpsDatar_ssrdata_ptr;			///< pointer to right gps data structure
+	struct airdata *adData_ssrdata_ptr;			///< pointer to airdata data structure
+	struct surface *surfData_ssrdata_ptr;		///< pointer to surface data structure
+	struct inceptor *inceptorData_ssrdata_ptr;	///< pointer to pilot inceptor data structure
 };
 
 /// Datalogging data structure
 struct datalog {
-	char** saveAsDoubleNames;		///< pointer to char array of variable names for doubles
-	double** saveAsDoublePointers;	///< pointer to double pointer array to variables that will be saved as doubles
-	char** saveAsFloatNames;		///< pointer to char array of variable names for floats
-	double** saveAsFloatPointers;	///< pointer to double pointer array to variables that will be saved as floats
-	char** saveAsIntNames;			///< pointer to char array of variable names for ints
-	int** saveAsIntPointers;		///< pointer to int32_t pointer array to variables that will be saved as ints
-	char** saveAsShortNames;		///< pointer to char array of variable names for shorts
-	unsigned short** saveAsShortPointers;	///< pointer to uint16_t pointer array to variables that will be saved as shorts
-	int logArraySize; 	///< Number of data points in the logging array. 50 Hz * 60 sec/min * 30 minutes = 90000
-	int numDoubleVars;	///< Number of variables that will be logged as doubles
-	int numFloatVars;	///< Number of variables that will be logged as floats
-	int numIntVars;		///< Number of variables that will be logged as ints
-	int numShortVars;	///< Number of variables that will be logged as shorts
+	char** saveAsDoubleNames_dtlog_ptr;		///< pointer to char array of variable names for doubles
+	double** saveAsDoublePointers_dtlog_ptr;	///< pointer to double pointer array to variables that will be saved as doubles
+	char** saveAsFloatNames_dtlog_ptr;		///< pointer to char array of variable names for floats
+	double** saveAsFloatPointers_dtlog_ptr;	///< pointer to double pointer array to variables that will be saved as floats
+	char** saveAsIntNames_dtlog_ptr;			///< pointer to char array of variable names for ints
+	int** saveAsIntPointers_dtlog_ptr;		///< pointer to int32_t pointer array to variables that will be saved as ints
+	char** saveAsShortNames_dtlog_ptr;		///< pointer to char array of variable names for shorts
+	unsigned short** saveAsShortPointers_dtlog_ptr;	///< pointer to uint16_t pointer array to variables that will be saved as shorts
+	int logArraySize_dtlog_nu; 	///< Number of data points in the logging array. 50 Hz * 60 sec/min * 30 minutes = 90000
+	int numDoubleVars_dtlog_nu;	///< Number of variables that will be logged as doubles
+	int numFloatVars_dtlog_nu;	///< Number of variables that will be logged as floats
+	int numIntVars_dtlog_nu;		///< Number of variables that will be logged as ints
+	int numShortVars_dtlog_nu;	///< Number of variables that will be logged as shorts
 };
 #endif	/* GLOBALDEFS_H_ */
