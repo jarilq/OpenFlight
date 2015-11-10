@@ -130,14 +130,14 @@ static SGPropertyNode *downVelocity_nav_mps_node = NULL; 		///< [m/sec], down ve
 static SGPropertyNode *rollAngle_nav_rads_node = NULL; 			///< [rad], Euler roll angle estimate
 static SGPropertyNode *pitchAngle_nav_rads_node = NULL; 		///< [rad], Euler pitch angle estimate
 static SGPropertyNode *yawAngle_nav_rads_node = NULL; 			///< [rad], Euler yaw angle estimate
-static SGPropertyNode *quat_nav_node[4] = {NULL, NULL, NULL, NULL};// = NULL; //Do arrays need NULL?		///< Quaternions estimate
-static SGPropertyNode *accelerometerBias_nav_mpsSq_node[3] = {NULL, NULL, NULL};			///< [m/sec^2], accelerometer bias estimate
-static SGPropertyNode *gyroBias_nav_rps_node[3] = {NULL, NULL, NULL};					///< [rad/sec], rate gyro bias estimate
-static SGPropertyNode *covariancePosition_nav_rads_node[3] = {NULL, NULL, NULL};			///< [rad], covariance estimate for position
-static SGPropertyNode *covarianceVelocity_nav_rads_node[3] = {NULL, NULL, NULL};			///< [rad], covariance estimate for velocity
-static SGPropertyNode *covarianceAngles_nav_rads_node[3] = {NULL, NULL, NULL};			///< [rad], covariance estimate for angles
-static SGPropertyNode *covarianceAccelBias_nav_rads_node[3] = {NULL, NULL, NULL};		///< [rad], covariance estimate for accelerometer bias
-static SGPropertyNode *covarianceGyroBias_nav_rads_node[3] = { NULL, NULL, NULL};			///< [rad], covariance estimate for rate gyro bias
+static SGPropertyNode *quat_nav_node[4] = {NULL, NULL, NULL, NULL}; 				///< Quaternions estimate
+static SGPropertyNode *accelerometerBias_nav_mpsSq_node[3] = {NULL, NULL, NULL};	///< [m/sec^2], accelerometer bias estimate
+static SGPropertyNode *gyroBias_nav_rps_node[3] = {NULL, NULL, NULL};				///< [rad/sec], rate gyro bias estimate
+static SGPropertyNode *covariancePosition_nav_rads_node[3] = {NULL, NULL, NULL};	///< [rad], covariance estimate for position
+static SGPropertyNode *covarianceVelocity_nav_rads_node[3] = {NULL, NULL, NULL};	///< [rad], covariance estimate for velocity
+static SGPropertyNode *covarianceAngles_nav_rads_node[3] = {NULL, NULL, NULL};		///< [rad], covariance estimate for angles
+static SGPropertyNode *covarianceAccelBias_nav_rads_node[3] = {NULL, NULL, NULL};	///< [rad], covariance estimate for accelerometer bias
+static SGPropertyNode *covarianceGyroBias_nav_rads_node[3] = { NULL, NULL, NULL};	///< [rad], covariance estimate for rate gyro bias
 static SGPropertyNode *err_type_nav_node = NULL; //fgGetNode("/nav/err_type", 0, true); 						///< NAV filter status
 
 // Input local variables
@@ -239,69 +239,74 @@ void init_nav(){
 	temp156		= mat_creat(15,6,ZERO_MATRIX);
 	temp1512	= mat_creat(15,12,ZERO_MATRIX);
 
+	//Variables for concatenating path
+	char imu[] = "/imu";
+	char nav[] = "/nav";
+	char gps[] = "/gps";
+
 	// Property node initialization
-	//************IMU variables****************
-	p_imu_rps_node = fgGetNode("/imu/p_imu_rps", 0, true);								///< [rad/sec], body X axis angular rate (roll)
-	q_imu_rps_node = fgGetNode("/imu/q_imu_rps", 0, true);								///< [rad/sec], body Y axis angular rate (pitch)
-	r_imu_rps_node = fgGetNode("/imu/r_imu_rps", 0, true);								///< [rad/sec], body Z axis angular rate (yaw)
-	xAcceleration_imu_mpsSq_node = fgGetNode("/imu/xAcceleration_imu_mpsSq", 0, true);	///< [m/sec^2], body X axis acceleration
-	yAcceleration_imu_mpsSq_node = fgGetNode("/imu/yAcceleration_imu_mpsSq", 0, true);	///< [m/sec^2], body Y axis acceleration
-	zAcceleration_imu_mpsSq_node = fgGetNode("/imu/zAcceleration_imu_mpsSq", 0, true);	///< [m/sec^2], body Z axis acceleration
-	time_imu_sec_node = fgGetNode("/imu/time_imu_sec", 0, true);							///< [sec], timestamp of IMU data
+	//************IMU variables****************/*"/imu/p_imu_rps"*/
+	p_imu_rps_node = fgGetNode(imu,"/p_imu_rps", 0, true);								///< [rad/sec], body X axis angular rate (roll)
+	q_imu_rps_node = fgGetNode(imu,"/q_imu_rps", 0, true);								///< [rad/sec], body Y axis angular rate (pitch)
+	r_imu_rps_node = fgGetNode(imu,"/r_imu_rps", 0, true);								///< [rad/sec], body Z axis angular rate (yaw)
+	xAcceleration_imu_mpsSq_node = fgGetNode(imu,"/xAcceleration_imu_mpsSq", 0, true);	///< [m/sec^2], body X axis acceleration
+	yAcceleration_imu_mpsSq_node = fgGetNode(imu,"/yAcceleration_imu_mpsSq", 0, true);	///< [m/sec^2], body Y axis acceleration
+	zAcceleration_imu_mpsSq_node = fgGetNode(imu,"/zAcceleration_imu_mpsSq", 0, true);	///< [m/sec^2], body Z axis acceleration
+	time_imu_sec_node = fgGetNode(imu,"/time_imu_sec", 0, true);							///< [sec], timestamp of IMU data
 
 	//************GPS variables****************
-	latitude_gps_degs_node = fgGetNode("/gps/latitude_gps_degs", 0, true);				///< [deg], Geodetic latitude
-	longitude_gps_degs_node = fgGetNode("/gps/longitude_gps_degs", 0, true);				///< [deg], Geodetic longitude
-	altitude_gps_m_node = fgGetNode("/gps/altitude_gps_m", 0, true);						///< [m], altitude relative to WGS84
-	northVelocity_gps_mps_node = fgGetNode("/gps/northVelocity_gps_mps", 0, true);		///< [m/sec], North velocity
-	eastVelocity_gps_mps_node = fgGetNode("/gps/eastVelocity_gps_mps", 0, true);			///< [m/sec], East velocity
-	downVelocity_gps_mps_node = fgGetNode("/gps/downVelocity_gps_mps", 0, true);			///< [m/sec], Down velocity
-	newData_node = fgGetNode("/gps/newData", true);		///< [bool], flag set when GPS data has been updated
+	latitude_gps_degs_node = fgGetNode(gps,"/latitude_gps_degs", 0, true);				///< [deg], Geodetic latitude
+	longitude_gps_degs_node = fgGetNode(gps,"/longitude_gps_degs", 0, true);				///< [deg], Geodetic longitude
+	altitude_gps_m_node = fgGetNode(gps,"/altitude_gps_m", 0, true);						///< [m], altitude relative to WGS84
+	northVelocity_gps_mps_node = fgGetNode(gps,"/northVelocity_gps_mps", 0, true);		///< [m/sec], North velocity
+	eastVelocity_gps_mps_node = fgGetNode(gps,"/eastVelocity_gps_mps", 0, true);			///< [m/sec], East velocity
+	downVelocity_gps_mps_node = fgGetNode(gps,"/downVelocity_gps_mps", 0, true);			///< [m/sec], Down velocity
+	newData_node = fgGetNode(gps,"/newData", true);		///< [bool], flag set when GPS data has been updated
 
 	//************NAV variables****************
-	latitude_nav_rads_node = fgGetNode("/nav/latitude_nav_rads", true);				///< [rad], geodetic latitude estimate
-	longitude_nav_rads_node = fgGetNode("/nav/longitude_nav_rads", true);			///< [rad], geodetic longitude estimate
-	altitude_nav_m_node = fgGetNode("/nav/altitude_nav_m", true);					///< [m], altitude relative to WGS84 estimate
-	northVelocity_nav_mps_node = fgGetNode("/nav/northVelocity_nav_mps", true);		///< [m/sec], north velocity estimate
-	eastVelocity_nav_mps_node = fgGetNode("/nav/eastVelocity_nav_mps", true);		///< [m/sec], east velocity estimate
-	downVelocity_nav_mps_node = fgGetNode("/nav/downVelocity_nav_mps", true);		///< [m/sec], down velocity estimate
-	rollAngle_nav_rads_node = fgGetNode("/nav/rollAngle_nav_rads", true);			///< [rad], Euler roll angle estimate
-	pitchAngle_nav_rads_node = fgGetNode("/nav/pitchAngle_nav_rads", true);			///< [rad], Euler pitch angle estimate
-	yawAngle_nav_rads_node = fgGetNode("/nav/yawAngle_nav_rads", true);				///< [rad], Euler yaw angle estimate
+	latitude_nav_rads_node = fgGetNode(nav,"/latitude_nav_rads", true);				///< [rad], geodetic latitude estimate
+	longitude_nav_rads_node = fgGetNode(nav,"/longitude_nav_rads", true);			///< [rad], geodetic longitude estimate
+	altitude_nav_m_node = fgGetNode(nav,"/altitude_nav_m", true);					///< [m], altitude relative to WGS84 estimate
+	northVelocity_nav_mps_node = fgGetNode(nav,"/northVelocity_nav_mps", true);		///< [m/sec], north velocity estimate
+	eastVelocity_nav_mps_node = fgGetNode(nav,"/eastVelocity_nav_mps", true);		///< [m/sec], east velocity estimate
+	downVelocity_nav_mps_node = fgGetNode(nav,"/downVelocity_nav_mps", true);		///< [m/sec], down velocity estimate
+	rollAngle_nav_rads_node = fgGetNode(nav,"/rollAngle_nav_rads", true);			///< [rad], Euler roll angle estimate
+	pitchAngle_nav_rads_node = fgGetNode(nav,"/pitchAngle_nav_rads", true);			///< [rad], Euler pitch angle estimate
+	yawAngle_nav_rads_node = fgGetNode(nav,"/yawAngle_nav_rads", true);				///< [rad], Euler yaw angle estimate
 	///< Quaternions estimate
-	quat_nav_node[0] = fgGetNode("/nav/quat_nav", 0, true);
-	quat_nav_node[1] = fgGetNode("/nav/quat_nav", 1, true);
-	quat_nav_node[2] = fgGetNode("/nav/quat_nav", 2, true);
-	quat_nav_node[3] = fgGetNode("/nav/quat_nav", 3, true);
+	quat_nav_node[0] = fgGetNode(nav,"/quat_nav", 0, true);
+	quat_nav_node[1] = fgGetNode(nav,"/quat_nav", 1, true);
+	quat_nav_node[2] = fgGetNode(nav,"/quat_nav", 2, true);
+	quat_nav_node[3] = fgGetNode(nav,"/quat_nav", 3, true);
 	///< [m/sec^2], accelerometer bias estimate
-	accelerometerBias_nav_mpsSq_node[0] = fgGetNode("/nav/accelerometerBias_nav_mpsSq", 0, true);
-	accelerometerBias_nav_mpsSq_node[1] = fgGetNode("/nav/accelerometerBias_nav_mpsSq", 1, true);
-	accelerometerBias_nav_mpsSq_node[2] = fgGetNode("/nav/accelerometerBias_nav_mpsSq", 2, true);
+	accelerometerBias_nav_mpsSq_node[0] = fgGetNode(nav,"/accelerometerBias_nav_mpsSq", 0, true);
+	accelerometerBias_nav_mpsSq_node[1] = fgGetNode(nav,"/accelerometerBias_nav_mpsSq", 1, true);
+	accelerometerBias_nav_mpsSq_node[2] = fgGetNode(nav,"/accelerometerBias_nav_mpsSq", 2, true);
 	///< [rad/sec], rate gyro bias estimate
-	gyroBias_nav_rps_node[0] = fgGetNode("/nav/gyroBias_nav_rps", 0, true);
-	gyroBias_nav_rps_node[1] = fgGetNode("/nav/gyroBias_nav_rps", 1, true);
-	gyroBias_nav_rps_node[2] = fgGetNode("/nav/gyroBias_nav_rps", 2, true);
+	gyroBias_nav_rps_node[0] = fgGetNode(nav,"/gyroBias_nav_rps", 0, true);
+	gyroBias_nav_rps_node[1] = fgGetNode(nav,"/gyroBias_nav_rps", 1, true);
+	gyroBias_nav_rps_node[2] = fgGetNode(nav,"/gyroBias_nav_rps", 2, true);
 	///< [rad], covariance estimate for position
-	covariancePosition_nav_rads_node[0] = fgGetNode("/nav/covariancePosition_nav_rads", 0, true);
-	covariancePosition_nav_rads_node[1] = fgGetNode("/nav/covariancePosition_nav_rads", 1, true);
-	covariancePosition_nav_rads_node[2] = fgGetNode("/nav/covariancePosition_nav_rads", 2, true);
+	covariancePosition_nav_rads_node[0] = fgGetNode(nav,"/covariancePosition_nav_rads", 0, true);
+	covariancePosition_nav_rads_node[1] = fgGetNode(nav,"/covariancePosition_nav_rads", 1, true);
+	covariancePosition_nav_rads_node[2] = fgGetNode(nav,"/covariancePosition_nav_rads", 2, true);
 	///< [rad], covariance estimate for velocity
-	covarianceVelocity_nav_rads_node[0] = fgGetNode("/nav/covarianceVelocity_nav_rads", 0, true);
-	covarianceVelocity_nav_rads_node[1] = fgGetNode("/nav/covarianceVelocity_nav_rads", 1, true);
-	covarianceVelocity_nav_rads_node[2] = fgGetNode("/nav/covarianceVelocity_nav_rads", 2, true);
+	covarianceVelocity_nav_rads_node[0] = fgGetNode(nav,"/covarianceVelocity_nav_rads", 0, true);
+	covarianceVelocity_nav_rads_node[1] = fgGetNode(nav,"/covarianceVelocity_nav_rads", 1, true);
+	covarianceVelocity_nav_rads_node[2] = fgGetNode(nav,"/covarianceVelocity_nav_rads", 2, true);
 	///< [rad], covariance estimate for angles
-	covarianceAngles_nav_rads_node[0] = fgGetNode("/nav/covarianceAngles_nav_rads", 0, true);
-	covarianceAngles_nav_rads_node[1] = fgGetNode("/nav/covarianceAngles_nav_rads", 1, true);
-	covarianceAngles_nav_rads_node[2] = fgGetNode("/nav/covarianceAngles_nav_rads", 2, true);
+	covarianceAngles_nav_rads_node[0] = fgGetNode(nav,"/covarianceAngles_nav_rads", 0, true);
+	covarianceAngles_nav_rads_node[1] = fgGetNode(nav,"/covarianceAngles_nav_rads", 1, true);
+	covarianceAngles_nav_rads_node[2] = fgGetNode(nav,"/covarianceAngles_nav_rads", 2, true);
 	///< [rad], covariance estimate for accelerometer bias
-	covarianceAccelBias_nav_rads_node[0] = fgGetNode("/nav/covarianceAccelBias_nav_rads", 0, true);
-	covarianceAccelBias_nav_rads_node[1] = fgGetNode("/nav/covarianceAccelBias_nav_rads", 1, true);
-	covarianceAccelBias_nav_rads_node[2] = fgGetNode("/nav/covarianceAccelBias_nav_rads", 2, true);
+	covarianceAccelBias_nav_rads_node[0] = fgGetNode(nav,"/covarianceAccelBias_nav_rads", 0, true);
+	covarianceAccelBias_nav_rads_node[1] = fgGetNode(nav,"/covarianceAccelBias_nav_rads", 1, true);
+	covarianceAccelBias_nav_rads_node[2] = fgGetNode(nav,"/covarianceAccelBias_nav_rads", 2, true);
 	///< [rad], covariance estimate for rate gyro bias
-	covarianceGyroBias_nav_rads_node[0] = fgGetNode("/nav/covarianceGyroBias_nav_rads", 0, true);
-	covarianceGyroBias_nav_rads_node[1] = fgGetNode("/nav/covarianceGyroBias_nav_rads", 1, true);
-	covarianceGyroBias_nav_rads_node[2] = fgGetNode("/nav/covarianceGyroBias_nav_rads", 2, true);
-	err_type_nav_node = fgGetNode("/nav/err_type", 0, true);
+	covarianceGyroBias_nav_rads_node[0] = fgGetNode(nav,"/covarianceGyroBias_nav_rads", 0, true);
+	covarianceGyroBias_nav_rads_node[1] = fgGetNode(nav,"/covarianceGyroBias_nav_rads", 1, true);
+	covarianceGyroBias_nav_rads_node[2] = fgGetNode(nav,"/covarianceGyroBias_nav_rads", 2, true);
+	err_type_nav_node = fgGetNode(nav,"/err_type", 0, true);
 
 
 	// Read values from property tree
