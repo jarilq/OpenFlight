@@ -15,65 +15,65 @@
 
 //#include "../globaldefs.h"
 #include "systemid_interface.h"
-#include "props.hxx"
+#include "../props.hxx"
 
 //Control Surface Properties
-static SGPropertyNode *dthr_node = NULL;	///< [0-1], throttle command
-static SGPropertyNode *de_node = NULL;		///< [rad], elevator command, +TED
-static SGPropertyNode *dr_node = NULL;		///< [rad], rudder command, +TEL
-static SGPropertyNode *da_l_node = NULL;	///< [rad], left aileron command, +TED
-static SGPropertyNode *da_r_node = NULL;	///< [rad], right aileron command, +TED
-static SGPropertyNode *df_l_node = NULL;	///< [rad], left flap command, +TED
-static SGPropertyNode *df_r_node = NULL;	///< [rad], right flap command, +TED
+static SGPropertyNode *throcmd_control_nu_node = NULL;	///< [0-1], throttle command
+static SGPropertyNode *elevcmd_control_rads_node = NULL;		///< [rad], elevator command, +TED
+static SGPropertyNode *rudcmd_control_rads_node = NULL;		///< [rad], rudder command, +TEL
+static SGPropertyNode *lailcmd_control_rads_node = NULL;	///< [rad], left aileron command, +TED
+static SGPropertyNode *railcmd_control_rads_node = NULL;	///< [rad], right aileron command, +TED
+static SGPropertyNode *lfacmd_control_rads_node = NULL;	///< [rad], left flap command, +TED
+static SGPropertyNode *rflacmd_control_rads_node = NULL;	///< [rad], right flap command, +TED
 
 //Control Surface Variables
-static double dthr = 0.0;		///< [0-1], throttle command
-static double de = 0.0;			///< [rad], elevator command, +TED
-static double dr = 0.0; 		///< [rad], rudder command, +TEL
-static double da_l = 0.0;		///< [rad], left aileron command, +TED
-static double da_r = 0.0;		///< [rad], right aileron command, +TED
-static double df_l = 0.0;		///< [rad], left flap command, +TED
-static double df_r = 0.0;		///< [rad], right flap command, +TED
+static double throcmd_control_nu = 0.0;		///< [0-1], throttle command
+static double elevcmd_control_rads = 0.0;			///< [rad], elevator command, +TED
+static double rudcmd_control_rads = 0.0; 		///< [rad], rudder command, +TEL
+static double lailcmd_control_rads = 0.0;		///< [rad], left aileron command, +TED
+static double railcmd_control_rads = 0.0;		///< [rad], right aileron command, +TED
+static double lfacmd_control_rads = 0.0;		///< [rad], left flap command, +TED
+static double rflacmd_control_rads = 0.0;		///< [rad], right flap command, +TED
 
 extern void init_system_id(double time){
 	//Property node initialization
-	dthr_node = fgGetNode("/control/dthr", 0, true);
-	de_node = fgGetNode("/control/de", 0, true);
-	dr_node = fgGetNode("/control/dr", 0, true);
-	da_l_node = fgGetNode("/control/da_l", 0, true);
-	da_r_node = fgGetNode("/control/da_r", 0, true);
-	df_l_node = fgGetNode("/control/df_l", 0, true);
-	df_r_node = fgGetNode("/control/df_r", 0, true);
+	throcmd_control_nu_node = fgGetNode("/control/throcmd_control_nu", 0, true);
+	elevcmd_control_rads_node = fgGetNode("/control/de", 0, true);
+	rudcmd_control_rads_node = fgGetNode("/control/rudcmd_control_rads", 0, true);
+	lailcmd_control_rads_node = fgGetNode("/control/lailcmd_control_rads", 0, true);
+	railcmd_control_rads_node = fgGetNode("/control/railcmd_control_rads", 0, true);
+	lfacmd_control_rads_node = fgGetNode("/control/lfacmd_control_rads", 0, true);
+	rflacmd_control_rads_node = fgGetNode("/control/rflacmd_control_rads", 0, true);
 
 	//Initialize local variables
-	dthr = 0.0;
-	de = 0.0;
-	dr = 0.0;
-	da_l = 0.0;
-	da_r = 0.0;
-	df_l = 0.0;
-	df_r = 0.0;
+	throcmd_control_nu = 0.0;
+	elevcmd_control_rads = 0.0;
+	rudcmd_control_rads = 0.0;
+	lailcmd_control_rads = 0.0;
+	railcmd_control_rads = 0.0;
+	lfacmd_control_rads = 0.0;
+	rflacmd_control_rads = 0.0;
 
 	//PUT THIS AT THE END OF CODE
-	dthr_node->setDoubleValue(dthr);
-	de_node->setDoubleValue(de);
-	dr_node->setDoubleValue(dr);
-	da_l_node->setDoubleValue(da_l);
-	da_r_node->setDoubleValue(da_r);
-	df_l_node->setDoubleValue(df_l);
-	df_r_node->setDoubleValue(df_r);
+	throcmd_control_nu_node->setDoubleValue(throcmd_control_nu);
+	elevcmd_control_rads_node->setDoubleValue(elevcmd_control_rads);
+	rudcmd_control_rads_node->setDoubleValue(rudcmd_control_rads);
+	lailcmd_control_rads_node->setDoubleValue(lailcmd_control_rads);
+	railcmd_control_rads_node->setDoubleValue(railcmd_control_rads);
+	lfacmd_control_rads_node->setDoubleValue(lfacmd_control_rads);
+	rflacmd_control_rads_node->setDoubleValue(rflacmd_control_rads);
 };
 
 extern void get_system_id(double time){
 
 
 	//PUT THIS AT THE END OF CODE
-	dthr_node->setDoubleValue(dthr);
-	de_node->setDoubleValue(de);
-	dr_node->setDoubleValue(dr);
-	da_l_node->setDoubleValue(da_l);
-	da_r_node->setDoubleValue(da_r);
-	df_l_node->setDoubleValue(df_l);
-	df_r_node->setDoubleValue(df_r);
+	throcmd_control_nu_node->setDoubleValue(throcmd_control_nu);
+	elevcmd_control_rads_node->setDoubleValue(elevcmd_control_rads);
+	rudcmd_control_rads_node->setDoubleValue(rudcmd_control_rads);
+	lailcmd_control_rads_node->setDoubleValue(lailcmd_control_rads);
+	railcmd_control_rads_node->setDoubleValue(railcmd_control_rads);
+	lfacmd_control_rads_node->setDoubleValue(lfacmd_control_rads);
+	rflacmd_control_rads_node->setDoubleValue(rflacmd_control_rads);
 };
 
