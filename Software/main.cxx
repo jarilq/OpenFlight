@@ -13,12 +13,12 @@
 #include <iostream>
 
 #include "props.hxx"
-#include "globaldefs.h"
 #include "nav/nav_interface.h"
 #include "mission/mission_interface.h"
-#include "control/control_interface.h"
+//#include "control/control_interface.h"
 #include "system_id/systemid_interface.h"
 #include "mission/mission_interface.h"
+#include "PREVIOUSglobaldefs.h"
 
 using namespace std;
 
@@ -26,10 +26,10 @@ int main(void)
 {
 	int autop = 0;
 	props = new SGPropertyNode;
-	struct  nav   	navData;
-	struct sensordata sensorData;
-	struct control controlData;
-	struct mission missionData;
+	//struct  nav navData;
+	//struct sensordata sensorData;
+	//struct control controlData;
+	//struct mission missionData;
 	double time;
 	/*init_dataAq();
 	init_sensorProc();*/
@@ -37,7 +37,7 @@ int main(void)
 	init_nav();
 	/*init_telemetry();
 	init_data();*/
-	init_control(time, &sensorData, &navData, &controlData, &missionData);
+	//init_control(time, &sensorData, &navData, &controlData, &missionData);
 	//init_controlAl();
 	init_system_id(time);
 	//init_actuators();
@@ -53,10 +53,13 @@ int main(void)
 
 		if (autop == 1)
 		{
-			get_control(time, &sensorData, &navData, &controlData, &missionData);
+			//get_control(time, &sensorData, &navData, &controlData, &missionData);
 			//get_controlAl();
 			get_system_id(time);
 			//get_actuators();
 		}
 	}
+	close_mission();
+	close_nav();
+	close_system_id();
 }
