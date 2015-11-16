@@ -85,4 +85,6 @@ void three_multi_sine (double t_sec,	///< [sec], current time
 		double *rudderSurf					///< pointer to rudder control surface
 		);
 
+extern void close_system_id();
+
 #endif /* SYSTEMID_INTERFACE_H_ */
