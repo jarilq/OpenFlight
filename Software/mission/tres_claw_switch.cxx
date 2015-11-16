@@ -77,4 +77,6 @@ extern void run_mission() {
 	claw_mode_node->setDoubleValue(claw_mode);
 	claw_select_node->setDoubleValue(claw_select);
 
-}
+};
+
+extern void close_mission() {};
