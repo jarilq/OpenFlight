@@ -9,4 +9,6 @@ extern void get_mission();
 /// Standard function to call the mission manager
 extern void run_mission();
 
+extern void close_mission();
+
 #endif /* MISSION_INTERFACE_H_ */
