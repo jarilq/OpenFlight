@@ -9,8 +9,8 @@
  *
  * $Id: globaldefs_new_signals.h 854 2012-07-10 13:32:52Z joh07594 $
  */
-#ifndef OLDGLOBALDEFS_H_
-#define OLDGLOBALDEFS_H_
+#ifndef GLOBALDEFS_H_
+#define GLOBALDEFS_H_
 
 // ****** Macro function definitions *******************************************
 #define	mymin(arg1,arg2) 	(arg1<=arg2 ? arg1:arg2) 	///< Return the lesser of two input arguments */
@@ -201,4 +201,4 @@ struct datalog {
 	int numIntVars_dtlog_nu;		///< Number of variables that will be logged as ints
 	int numShortVars_dtlog_nu;	///< Number of variables that will be logged as shorts
 };
-#endif	/* OLDGLOBALDEFS_H_ */
+#endif	/* GLOBALDEFS_H_ */
