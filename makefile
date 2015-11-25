@@ -13,6 +13,7 @@ CC=arm-linux-gnueabihf-g++
 
 # Code to be compiled
 OBJ =\
+sensors/gps/uBlox7P.cxx \
 main.cxx
 
 #### RULES ####
@@ -33,4 +34,5 @@ display:
 	@ echo "University of Minnesota"
 	@ echo "Aerospace Engineering and Mechanics"
 	@ echo "Copyright 2011 Regents of the University of Minnesota. All rights reserved."
-	@ echo "www.uav.aem.umn.edu" 
+	@ echo "www.uav.aem.umn.edu"
+	@ echo "" 
