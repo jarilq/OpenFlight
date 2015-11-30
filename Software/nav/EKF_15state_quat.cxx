@@ -15,6 +15,7 @@
  * $Id: EKF_15state_quat.c 911 2012-10-08 15:00:59Z lie $
  */
 
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -37,7 +38,6 @@
 
 #include "nav_functions.hxx"
 #include "nav_interface.h"
-
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //error characteristics of navigation parameters
@@ -105,39 +105,39 @@ static double tprev;
 static SGPropertyNode *p_imu_rps_node = NULL; 					///< [rad/sec], body X axis angular rate (roll)
 static SGPropertyNode *q_imu_rps_node = NULL; 					///< [rad/sec], body Y axis angular rate (pitch)
 static SGPropertyNode *r_imu_rps_node = NULL; 					///< [rad/sec], body Z axis angular rate (yaw)
-static SGPropertyNode *xAcceleration_imu_mpsSq_node = NULL; 	///< [m/sec^2], body X axis acceleration
-static SGPropertyNode *yAcceleration_imu_mpsSq_node = NULL; 	///< [m/sec^2], body Y axis acceleration
-static SGPropertyNode *zAcceleration_imu_mpsSq_node = NULL; 	///< [m/sec^2], body Z axis acceleration
-static SGPropertyNode *time_imu_sec_node = NULL;				///< [sec], timestamp of IMU data
+static SGPropertyNode *ax_imu_mpss_node = NULL; 	///< [m/sec^2], body X axis acceleration
+static SGPropertyNode *ay_imu_mpss_node = NULL; 	///< [m/sec^2], body Y axis acceleration
+static SGPropertyNode *az_imu_mpss_node = NULL; 	///< [m/sec^2], body Z axis acceleration
+static SGPropertyNode *time_imu_s_node = NULL;				///< [sec], timestamp of IMU data
 
 //************GPS variables****************
-static SGPropertyNode *latitude_gps_degs_node = NULL; 			///< [deg], Geodetic latitude
-static SGPropertyNode *longitude_gps_degs_node = NULL; 			///< [deg], Geodetic longitude
-static SGPropertyNode *altitude_gps_m_node = NULL; 				///< [m], altitude relative to WGS84
-static SGPropertyNode *northVelocity_gps_mps_node = NULL; 		///< [m/sec], North velocity
-static SGPropertyNode *eastVelocity_gps_mps_node = NULL; 		///< [m/sec], East velocity
-static SGPropertyNode *downVelocity_gps_mps_node = NULL; 		///< [m/sec], Down velocity
-static SGPropertyNode *newData_node = NULL;						///< [bool], flag set when GPS data has been updated
+static SGPropertyNode *lat_gps_deg_node = NULL; 			///< [deg], Geodetic latitude
+static SGPropertyNode *lon_gps_deg_node = NULL; 			///< [deg], Geodetic longitude
+static SGPropertyNode *altWGS84_gps_m_node = NULL; 				///< [m], altitude relative to WGS84
+static SGPropertyNode *vn_gps_mps_node = NULL; 		///< [m/sec], North velocity
+static SGPropertyNode *ve_gps_mps_node = NULL; 		///< [m/sec], East velocity
+static SGPropertyNode *vd_gps_mps_node = NULL; 		///< [m/sec], Down velocity
+static SGPropertyNode *newData_gps_bool_node = NULL;						///< [bool], flag set when GPS data has been updated
 
 // Output Properties
 //************NAV variables****************
-static SGPropertyNode *latitude_nav_rads_node = NULL; 			///< [rad], geodetic latitude estimate
-static SGPropertyNode *longitude_nav_rads_node = NULL;			///< [rad], geodetic longitude estimate
-static SGPropertyNode *altitude_nav_m_node = NULL; 				///< [m], altitude relative to WGS84 estimate
-static SGPropertyNode *northVelocity_nav_mps_node = NULL;		///< [m/sec], north velocity estimate
-static SGPropertyNode *eastVelocity_nav_mps_node = NULL; 		///< [m/sec], east velocity estimate
-static SGPropertyNode *downVelocity_nav_mps_node = NULL; 		///< [m/sec], down velocity estimate
-static SGPropertyNode *rollAngle_nav_rads_node = NULL; 			///< [rad], Euler roll angle estimate
-static SGPropertyNode *pitchAngle_nav_rads_node = NULL; 		///< [rad], Euler pitch angle estimate
-static SGPropertyNode *yawAngle_nav_rads_node = NULL; 			///< [rad], Euler yaw angle estimate
+static SGPropertyNode *lat_nav_rad_node = NULL; 			///< [rad], geodetic latitude estimate
+static SGPropertyNode *lon_nav_rad_node = NULL;			///< [rad], geodetic longitude estimate
+static SGPropertyNode *alt_nav_m_node = NULL; 				///< [m], altitude relative to WGS84 estimate
+static SGPropertyNode *vn_nav_mps_node = NULL;		///< [m/sec], north velocity estimate
+static SGPropertyNode *ve_nav_mps_mps_node = NULL; 		///< [m/sec], east velocity estimate
+static SGPropertyNode *vd_nav_mps_node = NULL; 		///< [m/sec], down velocity estimate
+static SGPropertyNode *phi_nav_rad_node = NULL; 			///< [rad], Euler roll angle estimate
+static SGPropertyNode *theta_nav_rad_node = NULL; 		///< [rad], Euler pitch angle estimate
+static SGPropertyNode *psi_nav_rad_node = NULL; 			///< [rad], Euler yaw angle estimate
 static SGPropertyNode *quat_nav_node[4] = {NULL, NULL, NULL, NULL}; 				///< Quaternions estimate
-static SGPropertyNode *accelerometerBias_nav_mpsSq_node[3] = {NULL, NULL, NULL};	///< [m/sec^2], accelerometer bias estimate
+static SGPropertyNode *accelBias_nav_mpss_node[3] = {NULL, NULL, NULL};	///< [m/sec^2], accelerometer bias estimate
 static SGPropertyNode *gyroBias_nav_rps_node[3] = {NULL, NULL, NULL};				///< [rad/sec], rate gyro bias estimate
-static SGPropertyNode *covariancePosition_nav_rads_node[3] = {NULL, NULL, NULL};	///< [rad], covariance estimate for position
-static SGPropertyNode *covarianceVelocity_nav_rads_node[3] = {NULL, NULL, NULL};	///< [rad], covariance estimate for velocity
-static SGPropertyNode *covarianceAngles_nav_rads_node[3] = {NULL, NULL, NULL};		///< [rad], covariance estimate for angles
-static SGPropertyNode *covarianceAccelBias_nav_rads_node[3] = {NULL, NULL, NULL};	///< [rad], covariance estimate for accelerometer bias
-static SGPropertyNode *covarianceGyroBias_nav_rads_node[3] = { NULL, NULL, NULL};	///< [rad], covariance estimate for rate gyro bias
+static SGPropertyNode *covPos_nav_rad_node[3] = {NULL, NULL, NULL};	///< [rad], covariance estimate for position
+static SGPropertyNode *covVel_nav_rad_node[3] = {NULL, NULL, NULL};	///< [rad], covariance estimate for velocity
+static SGPropertyNode *covAngles_nav_rad_node[3] = {NULL, NULL, NULL};		///< [rad], covariance estimate for angles
+static SGPropertyNode *covAccelBias_nav_rad_node[3] = {NULL, NULL, NULL};	///< [rad], covariance estimate for accelerometer bias
+static SGPropertyNode *covGyroBias_nav_rad_node[3] = { NULL, NULL, NULL};	///< [rad], covariance estimate for rate gyro bias
 static SGPropertyNode *err_type_nav_node = NULL; //fgGetNode("/nav/err_type", 0, true); 						///< NAV filter status
 
 // Input local variables
@@ -145,39 +145,39 @@ static SGPropertyNode *err_type_nav_node = NULL; //fgGetNode("/nav/err_type", 0,
 static double p_imu_rps = 0.0; 		///< [rad/sec], body X axis angular rate (roll)
 static double q_imu_rps = 0.0; 		///< [rad/sec], body Y axis angular rate (pitch)
 static double r_imu_rps = 0.0; 							///< [rad/sec], body Z axis angular rate (yaw)
-static double xAcceleration_imu_mpsSq = 0.0; 	///< [m/sec^2], body X axis acceleration
-static double yAcceleration_imu_mpsSq = 0.0; 	///< [m/sec^2], body Y axis acceleration
-static double zAcceleration_imu_mpsSq = 0.0; 	///< [m/sec^2], body Z axis acceleration
-static double time_imu_sec = 0.0; 				///< [sec], timestamp of IMU data
+static double ax_imu_mpss = 0.0; 	///< [m/sec^2], body X axis acceleration
+static double ay_imu_mpss = 0.0; 	///< [m/sec^2], body Y axis acceleration
+static double az_imu_mpss = 0.0; 	///< [m/sec^2], body Z axis acceleration
+static double time_imu_s = 0.0; 				///< [sec], timestamp of IMU data
 
 //************GPS variables****************
-static double latitude_gps_degs = 0.0; 			///< [deg], Geodetic latitude
-static double longitude_gps_degs = 0.0;			///< [deg], Geodetic longitude
-static double altitude_gps_m = 0.0; 			///< [m], altitude relative to WGS84
-static double northVelocity_gps_mps = 0.0; 		///< [m/sec], North velocity
-static double eastVelocity_gps_mps = 0.0; 		///< [m/sec], East velocity
-static double downVelocity_gps_mps = 0.0;		///< [m/sec], Down velocity
-static unsigned short newData = 0.0;			///< [bool], flag set when GPS data has been updated
+static double lat_gps_deg = 0.0; 			///< [deg], Geodetic latitude
+static double lon_gps_deg = 0.0;			///< [deg], Geodetic longitude
+static double altWGS84_gps_m = 0.0; 			///< [m], altitude relative to WGS84
+static double vn_gps_mps = 0.0; 		///< [m/sec], North velocity
+static double ve_gps_mps = 0.0; 		///< [m/sec], East velocity
+static double vd_gps_mps = 0.0;		///< [m/sec], Down velocity
+static unsigned short newData_gps_bool = 0.0;			///< [bool], flag set when GPS data has been updated
 
 // Output local variables
 //************NAV variables****************
-static double latitude_nav_rads = 0.0; 			///< [rad], geodetic latitude estimate
-static double longitude_nav_rads = 0.0;			///< [rad], geodetic longitude estimate
-static double altitude_nav_m = 0.0;				///< [m], altitude relative to WGS84 estimate
-static double northVelocity_nav_mps = 0.0; 		///< [m/sec], north velocity estimate
-static double eastVelocity_nav_mps = 0.0; 		///< [m/sec], east velocity estimate
-static double downVelocity_nav_mps = 0.0; 		///< [m/sec], down velocity estimate
-static double rollAngle_nav_rads = 0.0; 		///< [rad], Euler roll angle estimate
-static double pitchAngle_nav_rads = 0.0; 		///< [rad], Euler pitch angle estimate
-static double yawAngle_nav_rads = 0.0; 			///< [rad], Euler yaw angle estimate
+static double lat_nav_rad = 0.0; 			///< [rad], geodetic latitude estimate
+static double lon_nav_rad = 0.0;			///< [rad], geodetic longitude estimate
+static double alt_nav_m = 0.0;				///< [m], altitude relative to WGS84 estimate
+static double vn_nav_mps = 0.0; 		///< [m/sec], north velocity estimate
+static double ve_nav_mps_mps = 0.0; 		///< [m/sec], east velocity estimate
+static double vd_nav_mps = 0.0; 		///< [m/sec], down velocity estimate
+static double phi_nav_rad = 0.0; 		///< [rad], Euler roll angle estimate
+static double theta_nav_rad = 0.0; 		///< [rad], Euler pitch angle estimate
+static double psi_nav_rad = 0.0; 			///< [rad], Euler yaw angle estimate
 static double quat_nav[4] = {0.0, 0.0, 0.0, 0.0};		///< Quaternions estimate
-static double accelerometerBias_nav_mpsSq[3] = {0.0, 0.0, 0.0};			///< [m/sec^2], accelerometer bias estimate
+static double accelBias_nav_mpss[3] = {0.0, 0.0, 0.0};			///< [m/sec^2], accelerometer bias estimate
 static double gyroBias_nav_rps[3] = {0.0, 0.0, 0.0};			///< [rad/sec], rate gyro bias estimate
-static double covariancePosition_nav_rads[3] = {0.0, 0.0, 0.0};				///< [rad], covariance estimate for position
-static double covarianceVelocity_nav_rads[3] = {0.0, 0.0, 0.0};				///< [rad], covariance estimate for velocity
-static double covarianceAngles_nav_rads[3] = {0.0, 0.0, 0.0};			///< [rad], covariance estimate for angles
-static double covarianceAccelBias_nav_rads[3] = {0.0, 0.0, 0.0};				///< [rad], covariance estimate for accelerometer bias
-static double covarianceGyroBias_nav_rads[3] = {0.0, 0.0, 0.0};			///< [rad], covariance estimate for rate gyro bias
+static double covPos_nav_rad[3] = {0.0, 0.0, 0.0};				///< [rad], covariance estimate for position
+static double covVel_nav_rad[3] = {0.0, 0.0, 0.0};				///< [rad], covariance estimate for velocity
+static double covAngles_nav_rad[3] = {0.0, 0.0, 0.0};			///< [rad], covariance estimate for angles
+static double covAccelBias_nav_rad[3] = {0.0, 0.0, 0.0};				///< [rad], covariance estimate for accelerometer bias
+static double covGyroBias_nav_rad[3] = {0.0, 0.0, 0.0};			///< [rad], covariance estimate for rate gyro bias
 enum   errdefs	{
 	data_valid,			///< Data valid
 	gps_aided,			///< NAV filter, GPS aided
@@ -249,63 +249,63 @@ void init_nav(){
 	p_imu_rps_node = fgGetNode(imu,"/p_imu_rps", 0, true);								///< [rad/sec], body X axis angular rate (roll)
 	q_imu_rps_node = fgGetNode(imu,"/q_imu_rps", 0, true);								///< [rad/sec], body Y axis angular rate (pitch)
 	r_imu_rps_node = fgGetNode(imu,"/r_imu_rps", 0, true);								///< [rad/sec], body Z axis angular rate (yaw)
-	xAcceleration_imu_mpsSq_node = fgGetNode(imu,"/xAcceleration_imu_mpsSq", 0, true);	///< [m/sec^2], body X axis acceleration
-	yAcceleration_imu_mpsSq_node = fgGetNode(imu,"/yAcceleration_imu_mpsSq", 0, true);	///< [m/sec^2], body Y axis acceleration
-	zAcceleration_imu_mpsSq_node = fgGetNode(imu,"/zAcceleration_imu_mpsSq", 0, true);	///< [m/sec^2], body Z axis acceleration
-	time_imu_sec_node = fgGetNode(imu,"/time_imu_sec", 0, true);							///< [sec], timestamp of IMU data
+	ax_imu_mpss_node = fgGetNode(imu,"/ax_imu_mpss", 0, true);	///< [m/sec^2], body X axis acceleration
+	ay_imu_mpss_node = fgGetNode(imu,"/ay_imu_mpss", 0, true);	///< [m/sec^2], body Y axis acceleration
+	az_imu_mpss_node = fgGetNode(imu,"/az_imu_mpss", 0, true);	///< [m/sec^2], body Z axis acceleration
+	time_imu_s_node = fgGetNode(imu,"/time_imu_s", 0, true);							///< [sec], timestamp of IMU data
 
 	//************GPS variables****************
-	latitude_gps_degs_node = fgGetNode(gps,"/latitude_gps_degs", 0, true);				///< [deg], Geodetic latitude
-	longitude_gps_degs_node = fgGetNode(gps,"/longitude_gps_degs", 0, true);				///< [deg], Geodetic longitude
-	altitude_gps_m_node = fgGetNode(gps,"/altitude_gps_m", 0, true);						///< [m], altitude relative to WGS84
-	northVelocity_gps_mps_node = fgGetNode(gps,"/northVelocity_gps_mps", 0, true);		///< [m/sec], North velocity
-	eastVelocity_gps_mps_node = fgGetNode(gps,"/eastVelocity_gps_mps", 0, true);			///< [m/sec], East velocity
-	downVelocity_gps_mps_node = fgGetNode(gps,"/downVelocity_gps_mps", 0, true);			///< [m/sec], Down velocity
-	newData_node = fgGetNode(gps,"/newData", true);		///< [bool], flag set when GPS data has been updated
+	lat_gps_deg_node = fgGetNode(gps,"/lat_gps_deg", 0, true);				///< [deg], Geodetic latitude
+	lon_gps_deg_node = fgGetNode(gps,"/lon_gps_deg", 0, true);				///< [deg], Geodetic longitude
+	altWGS84_gps_m_node = fgGetNode(gps,"/altWGS84_gps_m", 0, true);						///< [m], altitude relative to WGS84
+	vn_gps_mps_node = fgGetNode(gps,"/vn_gps_mps", 0, true);		///< [m/sec], North velocity
+	ve_gps_mps_node = fgGetNode(gps,"/ve_gps_mps", 0, true);			///< [m/sec], East velocity
+	vd_gps_mps_node = fgGetNode(gps,"/vd_gps_mps", 0, true);			///< [m/sec], Down velocity
+	newData_gps_bool_node = fgGetNode(gps,"/newData_gps_bool", true);		///< [bool], flag set when GPS data has been updated
 
 	//************NAV variables****************
-	latitude_nav_rads_node = fgGetNode(nav,"/latitude_nav_rads", true);				///< [rad], geodetic latitude estimate
-	longitude_nav_rads_node = fgGetNode(nav,"/longitude_nav_rads", true);			///< [rad], geodetic longitude estimate
-	altitude_nav_m_node = fgGetNode(nav,"/altitude_nav_m", true);					///< [m], altitude relative to WGS84 estimate
-	northVelocity_nav_mps_node = fgGetNode(nav,"/northVelocity_nav_mps", true);		///< [m/sec], north velocity estimate
-	eastVelocity_nav_mps_node = fgGetNode(nav,"/eastVelocity_nav_mps", true);		///< [m/sec], east velocity estimate
-	downVelocity_nav_mps_node = fgGetNode(nav,"/downVelocity_nav_mps", true);		///< [m/sec], down velocity estimate
-	rollAngle_nav_rads_node = fgGetNode(nav,"/rollAngle_nav_rads", true);			///< [rad], Euler roll angle estimate
-	pitchAngle_nav_rads_node = fgGetNode(nav,"/pitchAngle_nav_rads", true);			///< [rad], Euler pitch angle estimate
-	yawAngle_nav_rads_node = fgGetNode(nav,"/yawAngle_nav_rads", true);				///< [rad], Euler yaw angle estimate
+	lat_nav_rad_node = fgGetNode(nav,"/lat_nav_rad", true);				///< [rad], geodetic latitude estimate
+	lon_nav_rad_node = fgGetNode(nav,"/lon_nav_rad", true);			///< [rad], geodetic longitude estimate
+	alt_nav_m_node = fgGetNode(nav,"/alt_nav_m", true);					///< [m], altitude relative to WGS84 estimate
+	vn_nav_mps_node = fgGetNode(nav,"/vn_nav_mps", true);		///< [m/sec], north velocity estimate
+	ve_nav_mps_mps_node = fgGetNode(nav,"/ve_nav_mps_mps", true);		///< [m/sec], east velocity estimate
+	vd_nav_mps_node = fgGetNode(nav,"/vd_nav_mps", true);		///< [m/sec], down velocity estimate
+	phi_nav_rad_node = fgGetNode(nav,"/phi_nav_rad", true);			///< [rad], Euler roll angle estimate
+	theta_nav_rad_node = fgGetNode(nav,"/theta_nav_rad", true);			///< [rad], Euler pitch angle estimate
+	psi_nav_rad_node = fgGetNode(nav,"/psi_nav_rad", true);				///< [rad], Euler yaw angle estimate
 	///< Quaternions estimate
 	quat_nav_node[0] = fgGetNode(nav,"/quat_nav", 0, true);
 	quat_nav_node[1] = fgGetNode(nav,"/quat_nav", 1, true);
 	quat_nav_node[2] = fgGetNode(nav,"/quat_nav", 2, true);
 	quat_nav_node[3] = fgGetNode(nav,"/quat_nav", 3, true);
 	///< [m/sec^2], accelerometer bias estimate
-	accelerometerBias_nav_mpsSq_node[0] = fgGetNode(nav,"/accelerometerBias_nav_mpsSq", 0, true);
-	accelerometerBias_nav_mpsSq_node[1] = fgGetNode(nav,"/accelerometerBias_nav_mpsSq", 1, true);
-	accelerometerBias_nav_mpsSq_node[2] = fgGetNode(nav,"/accelerometerBias_nav_mpsSq", 2, true);
+	accelBias_nav_mpss_node[0] = fgGetNode(nav,"/accelBias_nav_mpss", 0, true);
+	accelBias_nav_mpss_node[1] = fgGetNode(nav,"/accelBias_nav_mpss", 1, true);
+	accelBias_nav_mpss_node[2] = fgGetNode(nav,"/accelBias_nav_mpss", 2, true);
 	///< [rad/sec], rate gyro bias estimate
 	gyroBias_nav_rps_node[0] = fgGetNode(nav,"/gyroBias_nav_rps", 0, true);
 	gyroBias_nav_rps_node[1] = fgGetNode(nav,"/gyroBias_nav_rps", 1, true);
 	gyroBias_nav_rps_node[2] = fgGetNode(nav,"/gyroBias_nav_rps", 2, true);
 	///< [rad], covariance estimate for position
-	covariancePosition_nav_rads_node[0] = fgGetNode(nav,"/covariancePosition_nav_rads", 0, true);
-	covariancePosition_nav_rads_node[1] = fgGetNode(nav,"/covariancePosition_nav_rads", 1, true);
-	covariancePosition_nav_rads_node[2] = fgGetNode(nav,"/covariancePosition_nav_rads", 2, true);
+	covPos_nav_rad_node[0] = fgGetNode(nav,"/covPos_nav_rad", 0, true);
+	covPos_nav_rad_node[1] = fgGetNode(nav,"/covPos_nav_rad", 1, true);
+	covPos_nav_rad_node[2] = fgGetNode(nav,"/covPos_nav_rad", 2, true);
 	///< [rad], covariance estimate for velocity
-	covarianceVelocity_nav_rads_node[0] = fgGetNode(nav,"/covarianceVelocity_nav_rads", 0, true);
-	covarianceVelocity_nav_rads_node[1] = fgGetNode(nav,"/covarianceVelocity_nav_rads", 1, true);
-	covarianceVelocity_nav_rads_node[2] = fgGetNode(nav,"/covarianceVelocity_nav_rads", 2, true);
+	covVel_nav_rad_node[0] = fgGetNode(nav,"/covVel_nav_rad", 0, true);
+	covVel_nav_rad_node[1] = fgGetNode(nav,"/covVel_nav_rad", 1, true);
+	covVel_nav_rad_node[2] = fgGetNode(nav,"/covVel_nav_rad", 2, true);
 	///< [rad], covariance estimate for angles
-	covarianceAngles_nav_rads_node[0] = fgGetNode(nav,"/covarianceAngles_nav_rads", 0, true);
-	covarianceAngles_nav_rads_node[1] = fgGetNode(nav,"/covarianceAngles_nav_rads", 1, true);
-	covarianceAngles_nav_rads_node[2] = fgGetNode(nav,"/covarianceAngles_nav_rads", 2, true);
+	covAngles_nav_rad_node[0] = fgGetNode(nav,"/covAngles_nav_rad", 0, true);
+	covAngles_nav_rad_node[1] = fgGetNode(nav,"/covAngles_nav_rad", 1, true);
+	covAngles_nav_rad_node[2] = fgGetNode(nav,"/covAngles_nav_rad", 2, true);
 	///< [rad], covariance estimate for accelerometer bias
-	covarianceAccelBias_nav_rads_node[0] = fgGetNode(nav,"/covarianceAccelBias_nav_rads", 0, true);
-	covarianceAccelBias_nav_rads_node[1] = fgGetNode(nav,"/covarianceAccelBias_nav_rads", 1, true);
-	covarianceAccelBias_nav_rads_node[2] = fgGetNode(nav,"/covarianceAccelBias_nav_rads", 2, true);
+	covAccelBias_nav_rad_node[0] = fgGetNode(nav,"/covAccelBias_nav_rad", 0, true);
+	covAccelBias_nav_rad_node[1] = fgGetNode(nav,"/covAccelBias_nav_rad", 1, true);
+	covAccelBias_nav_rad_node[2] = fgGetNode(nav,"/covAccelBias_nav_rad", 2, true);
 	///< [rad], covariance estimate for rate gyro bias
-	covarianceGyroBias_nav_rads_node[0] = fgGetNode(nav,"/covarianceGyroBias_nav_rads", 0, true);
-	covarianceGyroBias_nav_rads_node[1] = fgGetNode(nav,"/covarianceGyroBias_nav_rads", 1, true);
-	covarianceGyroBias_nav_rads_node[2] = fgGetNode(nav,"/covarianceGyroBias_nav_rads", 2, true);
+	covGyroBias_nav_rad_node[0] = fgGetNode(nav,"/covGyroBias_nav_rad", 0, true);
+	covGyroBias_nav_rad_node[1] = fgGetNode(nav,"/covGyroBias_nav_rad", 1, true);
+	covGyroBias_nav_rad_node[2] = fgGetNode(nav,"/covGyroBias_nav_rad", 2, true);
 	err_type_nav_node = fgGetNode(nav,"/err_type", 0, true);
 
 
@@ -315,64 +315,64 @@ void init_nav(){
 	p_imu_rps = p_imu_rps_node->getDoubleValue(); 		///< [rad/sec], body X axis angular rate (roll)
 	q_imu_rps = q_imu_rps_node->getDoubleValue(); 		///< [rad/sec], body Y axis angular rate (pitch)
 	r_imu_rps = r_imu_rps_node->getDoubleValue(); 							///< [rad/sec], body Z axis angular rate (yaw)
-	xAcceleration_imu_mpsSq = xAcceleration_imu_mpsSq_node->getDoubleValue(); 	///< [m/sec^2], body X axis acceleration
-	yAcceleration_imu_mpsSq = yAcceleration_imu_mpsSq_node->getDoubleValue(); 	///< [m/sec^2], body Y axis acceleration
-	zAcceleration_imu_mpsSq = zAcceleration_imu_mpsSq_node->getDoubleValue(); 	///< [m/sec^2], body Z axis acceleration
-	time_imu_sec = time_imu_sec_node->getDoubleValue(); 				///< [sec], timestamp of IMU data
+	ax_imu_mpss = ax_imu_mpss_node->getDoubleValue(); 	///< [m/sec^2], body X axis acceleration
+	ay_imu_mpss = ay_imu_mpss_node->getDoubleValue(); 	///< [m/sec^2], body Y axis acceleration
+	az_imu_mpss = az_imu_mpss_node->getDoubleValue(); 	///< [m/sec^2], body Z axis acceleration
+	time_imu_s = time_imu_s_node->getDoubleValue(); 				///< [sec], timestamp of IMU data
 
 	//************GPS variables****************
-	latitude_gps_degs = latitude_gps_degs_node->getDoubleValue(); //fgGetNode("/gps/latitude_gps_degs", 0, true);				///< [deg], Geodetic latitude
-	longitude_gps_degs = longitude_gps_degs_node->getDoubleValue();//fgGetNode("/gps/longitude_gps_degs", 0, true);				///< [deg], Geodetic longitude
-	altitude_gps_m = altitude_gps_m_node->getDoubleValue(); //fgGetNode("/gps/altitude_gps_m", 0, true);						///< [m], altitude relative to WGS84
-	northVelocity_gps_mps = northVelocity_gps_mps_node->getDoubleValue(); //fgGetNode("/gps/northVelocity_gps_mps", 0, true);		///< [m/sec], North velocity
-	eastVelocity_gps_mps = eastVelocity_gps_mps_node->getDoubleValue(); //fgGetNode("/gps/eastVelocity_gps_mps", 0, true);			///< [m/sec], East velocity
-	downVelocity_gps_mps = downVelocity_gps_mps_node->getDoubleValue(); //fgGetNode("/gps/downVelocity_gps_mps", 0, true);			///< [m/sec], Down velocity
-	newData = newData_node->getDoubleValue();		///< [bool], flag set when GPS data has been updated
+	lat_gps_deg = lat_gps_deg_node->getDoubleValue(); //fgGetNode("/gps/lat_gps_deg", 0, true);				///< [deg], Geodetic latitude
+	lon_gps_deg = lon_gps_deg_node->getDoubleValue();//fgGetNode("/gps/lon_gps_deg", 0, true);				///< [deg], Geodetic longitude
+	altWGS84_gps_m = altWGS84_gps_m_node->getDoubleValue(); //fgGetNode("/gps/altWGS84_gps_m", 0, true);						///< [m], altitude relative to WGS84
+	vn_gps_mps = vn_gps_mps_node->getDoubleValue(); //fgGetNode("/gps/vn_gps_mps", 0, true);		///< [m/sec], North velocity
+	ve_gps_mps = ve_gps_mps_node->getDoubleValue(); //fgGetNode("/gps/ve_gps_mps", 0, true);			///< [m/sec], East velocity
+	vd_gps_mps = vd_gps_mps_node->getDoubleValue(); //fgGetNode("/gps/vd_gps_mps", 0, true);			///< [m/sec], Down velocity
+	newData_gps_bool = newData_gps_bool_node->getDoubleValue();		///< [bool], flag set when GPS data has been updated
 
 	// Initialize local output variables
 	//************NAV variables****************
-	latitude_nav_rads = 0.0; 			///< [rad], geodetic latitude estimate
-	longitude_nav_rads = 0.0;			///< [rad], geodetic longitude estimate
-	altitude_nav_m = 0.0;				///< [m], altitude relative to WGS84 estimate
-	northVelocity_nav_mps = 0.0; 		///< [m/sec], north velocity estimate
-	eastVelocity_nav_mps = 0.0; 		///< [m/sec], east velocity estimate
-	downVelocity_nav_mps = 0.0; 		///< [m/sec], down velocity estimate
-	rollAngle_nav_rads = 0.0; 		///< [rad], Euler roll angle estimate
-	pitchAngle_nav_rads = 0.0; 		///< [rad], Euler pitch angle estimate
-	yawAngle_nav_rads = 0.0; 			///< [rad], Euler yaw angle estimate
+	lat_nav_rad = 0.0; 			///< [rad], geodetic latitude estimate
+	lon_nav_rad = 0.0;			///< [rad], geodetic longitude estimate
+	alt_nav_m = 0.0;				///< [m], altitude relative to WGS84 estimate
+	vn_nav_mps = 0.0; 		///< [m/sec], north velocity estimate
+	ve_nav_mps_mps = 0.0; 		///< [m/sec], east velocity estimate
+	vd_nav_mps = 0.0; 		///< [m/sec], down velocity estimate
+	phi_nav_rad = 0.0; 		///< [rad], Euler roll angle estimate
+	theta_nav_rad = 0.0; 		///< [rad], Euler pitch angle estimate
+	psi_nav_rad = 0.0; 			///< [rad], Euler yaw angle estimate
 	///< Quaternions estimate
 	quat_nav[0] = 0.0;
 	quat_nav[1] = 0.0;
 	quat_nav[2] = 0.0;
 	quat_nav[3] = 0.0;
 	///< [m/sec^2], accelerometer bias estimate
-	accelerometerBias_nav_mpsSq[0] = 0.0;
-	accelerometerBias_nav_mpsSq[1] = 0.0;
-	accelerometerBias_nav_mpsSq[2] = 0.0;
+	accelBias_nav_mpss[0] = 0.0;
+	accelBias_nav_mpss[1] = 0.0;
+	accelBias_nav_mpss[2] = 0.0;
 	///< [rad/sec], rate gyro bias estimate
 	gyroBias_nav_rps[0] = 0.0;
 	gyroBias_nav_rps[1] = 0.0;
 	gyroBias_nav_rps[2] = 0.0;;
 	///< [rad], covariance estimate for position
-	covariancePosition_nav_rads[0] = 0.0;
-	covariancePosition_nav_rads[1] = 0.0;
-	covariancePosition_nav_rads[2] = 0.0;
+	covPos_nav_rad[0] = 0.0;
+	covPos_nav_rad[1] = 0.0;
+	covPos_nav_rad[2] = 0.0;
 	///< [rad], covariance estimate for velocity
-	covarianceVelocity_nav_rads[0] = 0.0;
-	covarianceVelocity_nav_rads[1] = 0.0;
-	covarianceVelocity_nav_rads[2] = 0.0;
+	covVel_nav_rad[0] = 0.0;
+	covVel_nav_rad[1] = 0.0;
+	covVel_nav_rad[2] = 0.0;
 	///< [rad], covariance estimate for angles
-	covarianceAngles_nav_rads[0] = 0.0;
-	covarianceAngles_nav_rads[1] = 0.0;
-	covarianceAngles_nav_rads[2] = 0.0;
+	covAngles_nav_rad[0] = 0.0;
+	covAngles_nav_rad[1] = 0.0;
+	covAngles_nav_rad[2] = 0.0;
 	///< [rad], covariance estimate for accelerometer bias
-	covarianceAccelBias_nav_rads[0] = 0.0;
-	covarianceAccelBias_nav_rads[1] = 0.0;
-	covarianceAccelBias_nav_rads[2] = 0.0;
+	covAccelBias_nav_rad[0] = 0.0;
+	covAccelBias_nav_rad[1] = 0.0;
+	covAccelBias_nav_rad[2] = 0.0;
 	///< [rad], covariance estimate for rate gyro bias
-	covarianceGyroBias_nav_rads[0] = 0.0;
-	covarianceGyroBias_nav_rads[1] = 0.0;
-	covarianceGyroBias_nav_rads[2] = 0.0;
+	covGyroBias_nav_rad[0] = 0.0;
+	covGyroBias_nav_rad[1] = 0.0;
+	covGyroBias_nav_rad[2] = 0.0;
 
 	// Assemble the matrices
 	// .... gravity, g
@@ -397,12 +397,12 @@ void init_nav(){
 	P[12][12] = P_GB_INIT*P_GB_INIT; 	P[13][13] = P_GB_INIT*P_GB_INIT; 	P[14][14] = P_GB_INIT*P_GB_INIT;
 
 	// ... update P in get_nav
-	covariancePosition_nav_rads[0] = P[0][0];	covariancePosition_nav_rads[1] = P[1][1];	covariancePosition_nav_rads[2] = P[2][2];
-	covarianceVelocity_nav_rads[0] = P[3][3];	covarianceVelocity_nav_rads[1] = P[4][4];	covarianceVelocity_nav_rads[2] = P[5][5];
-	covarianceAngles_nav_rads[0] = P[6][6];		covarianceAngles_nav_rads[1] = P[7][7];		covarianceAngles_nav_rads[2] = P[8][8];
+	covPos_nav_rad[0] = P[0][0];	covPos_nav_rad[1] = P[1][1];	covPos_nav_rad[2] = P[2][2];
+	covVel_nav_rad[0] = P[3][3];	covVel_nav_rad[1] = P[4][4];	covVel_nav_rad[2] = P[5][5];
+	covAngles_nav_rad[0] = P[6][6];		covAngles_nav_rad[1] = P[7][7];		covAngles_nav_rad[2] = P[8][8];
 
-	covarianceAccelBias_nav_rads[0] = P[9][9];	covarianceAccelBias_nav_rads[1] = P[10][10]; 	covarianceAccelBias_nav_rads[2] = P[11][11];
-	covarianceGyroBias_nav_rads[0] = P[12][12];	covarianceGyroBias_nav_rads[1] = P[13][13]; 	covarianceGyroBias_nav_rads[2] = P[14][14];
+	covAccelBias_nav_rad[0] = P[9][9];	covAccelBias_nav_rad[1] = P[10][10]; 	covAccelBias_nav_rad[2] = P[11][11];
+	covGyroBias_nav_rad[0] = P[12][12];	covGyroBias_nav_rad[1] = P[13][13]; 	covGyroBias_nav_rad[2] = P[14][14];
 
 	// ... R
 	R[0][0] = SIG_GPS_P_NE*SIG_GPS_P_NE;	R[1][1] = SIG_GPS_P_NE*SIG_GPS_P_NE;	R[2][2] = SIG_GPS_P_D*SIG_GPS_P_D;
@@ -410,86 +410,86 @@ void init_nav(){
 
 
 	// .. then initialize states with GPS Data
-	latitude_nav_rads = latitude_gps_degs*D2R;
-	longitude_nav_rads = longitude_gps_degs*D2R;
-	altitude_nav_m = altitude_gps_m;
+	lat_nav_rad = lat_gps_deg*D2R;
+	lon_nav_rad = lon_gps_deg*D2R;
+	alt_nav_m = altWGS84_gps_m;
 
-	northVelocity_nav_mps = northVelocity_gps_mps;
-	eastVelocity_nav_mps = eastVelocity_gps_mps;
-	downVelocity_nav_mps = downVelocity_gps_mps;
+	vn_nav_mps = vn_gps_mps;
+	ve_nav_mps_mps = ve_gps_mps;
+	vd_nav_mps = vd_gps_mps;
 
 	// ... and initialize states with IMU Data
-	//pitchAngle_nav_rads = asin(xAcceleration_imu_mpsSq/g); // theta from Ax, aircraft at rest
-	//rollAngle_nav_rads = asin(-yAcceleration_imu_mpsSq/(g*cos(pitchAngle_nav_rads))); // phi from Ay, aircraft at rest
-	pitchAngle_nav_rads = 8*D2R;
-	rollAngle_nav_rads = 0*D2R;
-	yawAngle_nav_rads = 90.0*D2R;
+	//theta_nav_rad = asin(ax_imu_mpss/g); // theta from Ax, aircraft at rest
+	//phi_nav_rad = asin(-ay_imu_mpss/(g*cos(theta_nav_rad))); // phi from Ay, aircraft at rest
+	theta_nav_rad = 8*D2R;
+	phi_nav_rad = 0*D2R;
+	psi_nav_rad = 90.0*D2R;
 
-	eul2quat(quat_nav,rollAngle_nav_rads,pitchAngle_nav_rads,yawAngle_nav_rads);
+	eul2quat(quat_nav,phi_nav_rad,theta_nav_rad,psi_nav_rad);
 
-	accelerometerBias_nav_mpsSq[0] = 0.0;
-	accelerometerBias_nav_mpsSq[1] = 0.0;
-	accelerometerBias_nav_mpsSq[2] = 0.0;
+	accelBias_nav_mpss[0] = 0.0;
+	accelBias_nav_mpss[1] = 0.0;
+	accelBias_nav_mpss[2] = 0.0;
 
 	gyroBias_nav_rps[0] = p_imu_rps;
 	gyroBias_nav_rps[1] = q_imu_rps;
 	gyroBias_nav_rps[2] = r_imu_rps;
 
 	// Specific forces and Rotation Rate
-	f_b[0][0] = xAcceleration_imu_mpsSq - accelerometerBias_nav_mpsSq[0];
-	f_b[1][0] = yAcceleration_imu_mpsSq - accelerometerBias_nav_mpsSq[1];
-	f_b[2][0] = zAcceleration_imu_mpsSq - accelerometerBias_nav_mpsSq[2];
+	f_b[0][0] = ax_imu_mpss - accelBias_nav_mpss[0];
+	f_b[1][0] = ay_imu_mpss - accelBias_nav_mpss[1];
+	f_b[2][0] = az_imu_mpss - accelBias_nav_mpss[2];
 
 	om_ib[0][0] = p_imu_rps - gyroBias_nav_rps[0];
 	om_ib[1][0] = q_imu_rps - gyroBias_nav_rps[1];
 	om_ib[2][0] = r_imu_rps - gyroBias_nav_rps[2];
 
 	// Time during initialization
-	tprev = time_imu_sec;
+	tprev = time_imu_s;
 
 	//Set output variables back to SGProps format
-	latitude_nav_rads_node->setDoubleValue(latitude_nav_rads); 			///< [rad], geodetic latitude estimate
-	longitude_nav_rads_node->setDoubleValue(longitude_nav_rads);			///< [rad], geodetic longitude estimate
-	altitude_nav_m_node->setDoubleValue(altitude_nav_m);				///< [m], altitude relative to WGS84 estimate
-	northVelocity_nav_mps_node->setDoubleValue(northVelocity_nav_mps); 		///< [m/sec], north velocity estimate
-	eastVelocity_nav_mps_node->setDoubleValue(eastVelocity_nav_mps); 		///< [m/sec], east velocity estimate
-	downVelocity_nav_mps_node->setDoubleValue(downVelocity_nav_mps); 		///< [m/sec], down velocity estimate
-	rollAngle_nav_rads_node->setDoubleValue(rollAngle_nav_rads); 		///< [rad], Euler roll angle estimate
-	pitchAngle_nav_rads_node->setDoubleValue(pitchAngle_nav_rads); 		///< [rad], Euler pitch angle estimate
-	yawAngle_nav_rads_node->setDoubleValue(yawAngle_nav_rads); 			///< [rad], Euler yaw angle estimate
+	lat_nav_rad_node->setDoubleValue(lat_nav_rad); 			///< [rad], geodetic latitude estimate
+	lon_nav_rad_node->setDoubleValue(lon_nav_rad);			///< [rad], geodetic longitude estimate
+	alt_nav_m_node->setDoubleValue(alt_nav_m);				///< [m], altitude relative to WGS84 estimate
+	vn_nav_mps_node->setDoubleValue(vn_nav_mps); 		///< [m/sec], north velocity estimate
+	ve_nav_mps_mps_node->setDoubleValue(ve_nav_mps_mps); 		///< [m/sec], east velocity estimate
+	vd_nav_mps_node->setDoubleValue(vd_nav_mps); 		///< [m/sec], down velocity estimate
+	phi_nav_rad_node->setDoubleValue(phi_nav_rad); 		///< [rad], Euler roll angle estimate
+	theta_nav_rad_node->setDoubleValue(theta_nav_rad); 		///< [rad], Euler pitch angle estimate
+	psi_nav_rad_node->setDoubleValue(psi_nav_rad); 			///< [rad], Euler yaw angle estimate
 	///< Quaternions estimate
 	quat_nav_node[0]->setDoubleValue(quat_nav[0]);
 	quat_nav_node[1]->setDoubleValue(quat_nav[1]);
 	quat_nav_node[2]->setDoubleValue(quat_nav[2]);
 	quat_nav_node[3]->setDoubleValue(quat_nav[3]);
 	///< [m/sec^2], accelerometer bias estimate
-	accelerometerBias_nav_mpsSq_node[0]->setDoubleValue(accelerometerBias_nav_mpsSq[0]);
-	accelerometerBias_nav_mpsSq_node[1]->setDoubleValue(accelerometerBias_nav_mpsSq[1]);
-	accelerometerBias_nav_mpsSq_node[2]->setDoubleValue(accelerometerBias_nav_mpsSq[2]);
+	accelBias_nav_mpss_node[0]->setDoubleValue(accelBias_nav_mpss[0]);
+	accelBias_nav_mpss_node[1]->setDoubleValue(accelBias_nav_mpss[1]);
+	accelBias_nav_mpss_node[2]->setDoubleValue(accelBias_nav_mpss[2]);
 	///< [rad/sec], rate gyro bias estimate
 	gyroBias_nav_rps_node[0]->setDoubleValue(gyroBias_nav_rps[0]);
 	gyroBias_nav_rps_node[1]->setDoubleValue(gyroBias_nav_rps[1]);
 	gyroBias_nav_rps_node[2]->setDoubleValue(gyroBias_nav_rps[2]);
 	///< [rad], covariance estimate for position
-	covariancePosition_nav_rads_node[0]->setDoubleValue(covariancePosition_nav_rads[0]);
-	covariancePosition_nav_rads_node[1]->setDoubleValue(covariancePosition_nav_rads[1]);
-	covariancePosition_nav_rads_node[2]->setDoubleValue(covariancePosition_nav_rads[2]);
+	covPos_nav_rad_node[0]->setDoubleValue(covPos_nav_rad[0]);
+	covPos_nav_rad_node[1]->setDoubleValue(covPos_nav_rad[1]);
+	covPos_nav_rad_node[2]->setDoubleValue(covPos_nav_rad[2]);
 	///< [rad], covariance estimate for velocity
-	covarianceVelocity_nav_rads_node[0]->setDoubleValue(covarianceVelocity_nav_rads[0]);
-	covarianceVelocity_nav_rads_node[1]->setDoubleValue(covarianceVelocity_nav_rads[1]);
-	covarianceVelocity_nav_rads_node[2]->setDoubleValue(covarianceVelocity_nav_rads[2]);
+	covVel_nav_rad_node[0]->setDoubleValue(covVel_nav_rad[0]);
+	covVel_nav_rad_node[1]->setDoubleValue(covVel_nav_rad[1]);
+	covVel_nav_rad_node[2]->setDoubleValue(covVel_nav_rad[2]);
 	///< [rad], covariance estimate for angles
-	covarianceAngles_nav_rads_node[0]->setDoubleValue(covarianceAngles_nav_rads[0]);
-	covarianceAngles_nav_rads_node[1]->setDoubleValue(covarianceAngles_nav_rads[1]);
-	covarianceAngles_nav_rads_node[2]->setDoubleValue(covarianceAngles_nav_rads[2]);
+	covAngles_nav_rad_node[0]->setDoubleValue(covAngles_nav_rad[0]);
+	covAngles_nav_rad_node[1]->setDoubleValue(covAngles_nav_rad[1]);
+	covAngles_nav_rad_node[2]->setDoubleValue(covAngles_nav_rad[2]);
 	///< [rad], covariance estimate for accelerometer bias
-	covarianceAccelBias_nav_rads_node[0]->setDoubleValue(covarianceAccelBias_nav_rads[0]);
-	covarianceAccelBias_nav_rads_node[1]->setDoubleValue(covarianceAccelBias_nav_rads[1]);
-	covarianceAccelBias_nav_rads_node[2]->setDoubleValue(covarianceAccelBias_nav_rads[2]);
+	covAccelBias_nav_rad_node[0]->setDoubleValue(covAccelBias_nav_rad[0]);
+	covAccelBias_nav_rad_node[1]->setDoubleValue(covAccelBias_nav_rad[1]);
+	covAccelBias_nav_rad_node[2]->setDoubleValue(covAccelBias_nav_rad[2]);
 	///< [rad], covariance estimate for rate gyro bias
-	covarianceGyroBias_nav_rads_node[0]->setDoubleValue(covarianceGyroBias_nav_rads[0]);
-	covarianceGyroBias_nav_rads_node[1]->setDoubleValue(covarianceGyroBias_nav_rads[1]);
-	covarianceGyroBias_nav_rads_node[2]->setDoubleValue(covarianceGyroBias_nav_rads[2]);
+	covGyroBias_nav_rad_node[0]->setDoubleValue(covGyroBias_nav_rad[0]);
+	covGyroBias_nav_rad_node[1]->setDoubleValue(covGyroBias_nav_rad[1]);
+	covGyroBias_nav_rad_node[2]->setDoubleValue(covGyroBias_nav_rad[2]);
 
 	err_type_nav = data_valid;
 
@@ -505,7 +505,7 @@ void get_nav(){
 
 	// compute time-elapsed 'dt'
 	// This compute the navigation state at the DAQ's Time Stamp
-	tnow = time_imu_sec;
+	tnow = time_imu_s;
 	imu_dt = tnow - tprev;
 	tprev = tnow;
 
@@ -516,11 +516,11 @@ void get_nav(){
 	quat[2] = quat_nav[2];
 	quat[3] = quat_nav[3];
 
-	a_temp31[0][0] = northVelocity_nav_mps; a_temp31[1][0] = eastVelocity_nav_mps;
-	a_temp31[2][0] = downVelocity_nav_mps;
+	a_temp31[0][0] = vn_nav_mps; a_temp31[1][0] = ve_nav_mps_mps;
+	a_temp31[2][0] = vd_nav_mps;
 
-	b_temp31[0][0] = latitude_nav_rads; b_temp31[1][0] = longitude_nav_rads;
-	b_temp31[2][0] = altitude_nav_m;
+	b_temp31[0][0] = lat_nav_rad; b_temp31[1][0] = lon_nav_rad;
+	b_temp31[2][0] = alt_nav_m;
 
 	// AHRS Transformations
 	C_N2B = quat2dcm(quat, C_N2B);
@@ -555,20 +555,20 @@ void get_nav(){
 	quat_nav[2] = quat[2];
 	quat_nav[3] = quat[3];
 
-	quat2eul(quat_nav,&(rollAngle_nav_rads),&(pitchAngle_nav_rads),&(yawAngle_nav_rads));
+	quat2eul(quat_nav,&(phi_nav_rad),&(theta_nav_rad),&(psi_nav_rad));
 
 	// Velocity Update
 	dx = mat_mul(C_B2N,f_b,dx);
 	dx = mat_add(dx,grav,dx);
-	northVelocity_nav_mps += imu_dt*dx[0][0];
-	eastVelocity_nav_mps += imu_dt*dx[1][0];
-	downVelocity_nav_mps += imu_dt*dx[2][0];
+	vn_nav_mps += imu_dt*dx[0][0];
+	ve_nav_mps_mps += imu_dt*dx[1][0];
+	vd_nav_mps += imu_dt*dx[2][0];
 
 	// Position Update
 	dx = llarate(a_temp31,b_temp31,dx);
-	latitude_nav_rads += imu_dt*dx[0][0];
-	longitude_nav_rads += imu_dt*dx[1][0];
-	altitude_nav_m += imu_dt*dx[2][0];
+	lat_nav_rad += imu_dt*dx[0][0];
+	lon_nav_rad += imu_dt*dx[1][0];
+	alt_nav_m += imu_dt*dx[2][0];
 
 	// JACOBIAN
 	F = mat_fill(F, ZERO_MATRIX);
@@ -644,24 +644,24 @@ void get_nav(){
 	P = mat_scalMul(P,0.5,P);				// P = 0.5*(P+P')
 	//fprintf(stderr,"Covariance Updated through Time Update\n");
 
-	covariancePosition_nav_rads[0] = P[0][0]; covariancePosition_nav_rads[1] = P[1][1]; covariancePosition_nav_rads[2] = P[2][2];
-	covarianceVelocity_nav_rads[0] = P[3][3]; covarianceVelocity_nav_rads[1] = P[4][4]; covarianceVelocity_nav_rads[2] = P[5][5];
-	covarianceAngles_nav_rads[0] = P[6][6]; covarianceAngles_nav_rads[1] = P[7][7]; covarianceAngles_nav_rads[2] = P[8][8];
-	covarianceAccelBias_nav_rads[0] = P[9][9]; covarianceAccelBias_nav_rads[1] = P[10][10]; covarianceAccelBias_nav_rads[2] = P[11][11];
-	covarianceGyroBias_nav_rads[0] = P[12][12]; covarianceGyroBias_nav_rads[1] = P[13][13]; covarianceGyroBias_nav_rads[2] = P[14][14];
+	covPos_nav_rad[0] = P[0][0]; covPos_nav_rad[1] = P[1][1]; covPos_nav_rad[2] = P[2][2];
+	covVel_nav_rad[0] = P[3][3]; covVel_nav_rad[1] = P[4][4]; covVel_nav_rad[2] = P[5][5];
+	covAngles_nav_rad[0] = P[6][6]; covAngles_nav_rad[1] = P[7][7]; covAngles_nav_rad[2] = P[8][8];
+	covAccelBias_nav_rad[0] = P[9][9]; covAccelBias_nav_rad[1] = P[10][10]; covAccelBias_nav_rad[2] = P[11][11];
+	covGyroBias_nav_rad[0] = P[12][12]; covGyroBias_nav_rad[1] = P[13][13]; covGyroBias_nav_rad[2] = P[14][14];
 
 	err_type_nav = TU_only;
 	//fprintf(stderr,"Time Update Done\n");
 	// ==================  DONE TU  ===================
 
-	if(newData){
+	if(newData_gps_bool){
 
 		// ==================  GPS Update  ===================
-		newData = 0; // Reset the flag
+		newData_gps_bool = 0; // Reset the flag
 
 		// Position, converted to NED
-		a_temp31[0][0] = latitude_nav_rads;
-		a_temp31[1][0] = longitude_nav_rads; a_temp31[2][0] = altitude_nav_m;
+		a_temp31[0][0] = lat_nav_rad;
+		a_temp31[1][0] = lon_nav_rad; a_temp31[2][0] = alt_nav_m;
 		pos_ins_ecef = lla2ecef(a_temp31,pos_ins_ecef);
 
 		a_temp31[2][0] = 0.0;
@@ -669,9 +669,9 @@ void get_nav(){
 		pos_ref = mat_copy(a_temp31,pos_ref);
 		pos_ins_ned = ecef2ned(pos_ins_ecef,pos_ins_ned,pos_ref);
 
-		pos_gps[0][0] = latitude_gps_degs*D2R;
-		pos_gps[1][0] = longitude_gps_degs*D2R;
-		pos_gps[2][0] = altitude_gps_m;
+		pos_gps[0][0] = lat_gps_deg*D2R;
+		pos_gps[1][0] = lon_gps_deg*D2R;
+		pos_gps[2][0] = altWGS84_gps_m;
 
 		pos_gps_ecef = lla2ecef(pos_gps,pos_gps_ecef);
 
@@ -682,9 +682,9 @@ void get_nav(){
 		y[1][0] = pos_gps_ned[1][0] - pos_ins_ned[1][0];
 		y[2][0] = pos_gps_ned[2][0] - pos_ins_ned[2][0];
 
-		y[3][0] = northVelocity_gps_mps - northVelocity_nav_mps;
-		y[4][0] = eastVelocity_gps_mps - eastVelocity_nav_mps;
-		y[5][0] = downVelocity_gps_mps - downVelocity_nav_mps;
+		y[3][0] = vn_gps_mps - vn_nav_mps;
+		y[4][0] = ve_gps_mps - ve_nav_mps_mps;
+		y[5][0] = vd_gps_mps - vd_nav_mps;
 
 		//fprintf(stderr,"Measurement Matrix, y, created\n");
 
@@ -713,26 +713,26 @@ void get_nav(){
 		P = mat_copy(temp1515,P);			// P = ImKH*P*ImKH' + KRKt
 		//fprintf(stderr,"Covariance Updated through GPS Update\n");
 
-		covariancePosition_nav_rads[0] = P[0][0]; covariancePosition_nav_rads[1] = P[1][1]; covariancePosition_nav_rads[2] = P[2][2];
-		covarianceVelocity_nav_rads[0] = P[3][3]; covarianceVelocity_nav_rads[1] = P[4][4]; covarianceVelocity_nav_rads[2] = P[5][5];
-		covarianceAngles_nav_rads[0] = P[6][6]; covarianceAngles_nav_rads[1] = P[7][7]; covarianceAngles_nav_rads[2] = P[8][8];
-		covarianceAccelBias_nav_rads[0] = P[9][9]; covarianceAccelBias_nav_rads[1] = P[10][10]; covarianceAccelBias_nav_rads[2] = P[11][11];
-		covarianceGyroBias_nav_rads[0] = P[12][12]; covarianceGyroBias_nav_rads[1] = P[13][13]; covarianceGyroBias_nav_rads[2] = P[14][14];
+		covPos_nav_rad[0] = P[0][0]; covPos_nav_rad[1] = P[1][1]; covPos_nav_rad[2] = P[2][2];
+		covVel_nav_rad[0] = P[3][3]; covVel_nav_rad[1] = P[4][4]; covVel_nav_rad[2] = P[5][5];
+		covAngles_nav_rad[0] = P[6][6]; covAngles_nav_rad[1] = P[7][7]; covAngles_nav_rad[2] = P[8][8];
+		covAccelBias_nav_rad[0] = P[9][9]; covAccelBias_nav_rad[1] = P[10][10]; covAccelBias_nav_rad[2] = P[11][11];
+		covGyroBias_nav_rad[0] = P[12][12]; covGyroBias_nav_rad[1] = P[13][13]; covGyroBias_nav_rad[2] = P[14][14];
 
 		// State Update
 		x = mat_mul(K,y,x);
-		denom = (1.0 - (ECC2 * sin(latitude_nav_rads) * sin(latitude_nav_rads)));
+		denom = (1.0 - (ECC2 * sin(lat_nav_rad) * sin(lat_nav_rad)));
 		denom = sqrt(denom*denom);
 
 		Re = EARTH_RADIUS / sqrt(denom);
 		Rn = EARTH_RADIUS*(1-ECC2) / denom*sqrt(denom);
-		altitude_nav_m = altitude_nav_m - x[2][0];
-		latitude_nav_rads = latitude_nav_rads + x[0][0]/(Re + altitude_nav_m);
-		longitude_nav_rads = longitude_nav_rads + x[1][0]/(Rn + altitude_nav_m)/cos(latitude_nav_rads);
+		alt_nav_m = alt_nav_m - x[2][0];
+		lat_nav_rad = lat_nav_rad + x[0][0]/(Re + alt_nav_m);
+		lon_nav_rad = lon_nav_rad + x[1][0]/(Rn + alt_nav_m)/cos(lat_nav_rad);
 
-		northVelocity_nav_mps = northVelocity_nav_mps + x[3][0];
-		eastVelocity_nav_mps = eastVelocity_nav_mps + x[4][0];
-		downVelocity_nav_mps = downVelocity_nav_mps + x[5][0];
+		vn_nav_mps = vn_nav_mps + x[3][0];
+		ve_nav_mps_mps = ve_nav_mps_mps + x[4][0];
+		vd_nav_mps = vd_nav_mps + x[5][0];
 
 		quat[0] = quat_nav[0];
 		quat[1] = quat_nav[1];
@@ -757,11 +757,11 @@ void get_nav(){
 		quat_nav[2] = quat[2];
 		quat_nav[3] = quat[3];
 
-		quat2eul(quat_nav,&(rollAngle_nav_rads),&(pitchAngle_nav_rads),&(yawAngle_nav_rads));
+		quat2eul(quat_nav,&(phi_nav_rad),&(theta_nav_rad),&(psi_nav_rad));
 
-		accelerometerBias_nav_mpsSq[0] = accelerometerBias_nav_mpsSq[0] + x[9][0];
-		accelerometerBias_nav_mpsSq[1] = accelerometerBias_nav_mpsSq[1] + x[10][0];
-		accelerometerBias_nav_mpsSq[2] = accelerometerBias_nav_mpsSq[2] + x[11][0];
+		accelBias_nav_mpss[0] = accelBias_nav_mpss[0] + x[9][0];
+		accelBias_nav_mpss[1] = accelBias_nav_mpss[1] + x[10][0];
+		accelBias_nav_mpss[2] = accelBias_nav_mpss[2] + x[11][0];
 
 		gyroBias_nav_rps[0] = gyroBias_nav_rps[0] + x[12][0];
 		gyroBias_nav_rps[1] = gyroBias_nav_rps[1] + x[13][0];
@@ -775,60 +775,60 @@ void get_nav(){
 	p_imu_rps -= gyroBias_nav_rps[0];
 	q_imu_rps -= gyroBias_nav_rps[1];
 	r_imu_rps -= gyroBias_nav_rps[2];
-	xAcceleration_imu_mpsSq -= accelerometerBias_nav_mpsSq[0];
-	yAcceleration_imu_mpsSq -= accelerometerBias_nav_mpsSq[1];
-	zAcceleration_imu_mpsSq -= accelerometerBias_nav_mpsSq[2];
+	ax_imu_mpss -= accelBias_nav_mpss[0];
+	ay_imu_mpss -= accelBias_nav_mpss[1];
+	az_imu_mpss -= accelBias_nav_mpss[2];
 
 	// Get the new Specific forces and Rotation Rate,
 	// use in the next time update
-	f_b[0][0] = xAcceleration_imu_mpsSq;
-	f_b[1][0] = yAcceleration_imu_mpsSq;
-	f_b[2][0] = zAcceleration_imu_mpsSq;
+	f_b[0][0] = ax_imu_mpss;
+	f_b[1][0] = ay_imu_mpss;
+	f_b[2][0] = az_imu_mpss;
 
 	om_ib[0][0] = p_imu_rps;
 	om_ib[1][0] = q_imu_rps;
 	om_ib[2][0] = r_imu_rps;
 
 	//Set output variables back to SGProps format
-	latitude_nav_rads_node->setDoubleValue(latitude_nav_rads); 			///< [rad], geodetic latitude estimate
-	longitude_nav_rads_node->setDoubleValue(longitude_nav_rads);			///< [rad], geodetic longitude estimate
-	altitude_nav_m_node->setDoubleValue(altitude_nav_m);				///< [m], altitude relative to WGS84 estimate
-	northVelocity_nav_mps_node->setDoubleValue(northVelocity_nav_mps); 		///< [m/sec], north velocity estimate
-	eastVelocity_nav_mps_node->setDoubleValue(eastVelocity_nav_mps); 		///< [m/sec], east velocity estimate
-	downVelocity_nav_mps_node->setDoubleValue(downVelocity_nav_mps); 		///< [m/sec], down velocity estimate
+	lat_nav_rad_node->setDoubleValue(lat_nav_rad); 			///< [rad], geodetic latitude estimate
+	lon_nav_rad_node->setDoubleValue(lon_nav_rad);			///< [rad], geodetic longitude estimate
+	alt_nav_m_node->setDoubleValue(alt_nav_m);				///< [m], altitude relative to WGS84 estimate
+	vn_nav_mps_node->setDoubleValue(vn_nav_mps); 		///< [m/sec], north velocity estimate
+	ve_nav_mps_mps_node->setDoubleValue(ve_nav_mps_mps); 		///< [m/sec], east velocity estimate
+	vd_nav_mps_node->setDoubleValue(vd_nav_mps); 		///< [m/sec], down velocity estimate
 	///< Quaternions estimate
 	quat_nav_node[0]->setDoubleValue(quat_nav[0]);
 	quat_nav_node[1]->setDoubleValue(quat_nav[1]);
 	quat_nav_node[2]->setDoubleValue(quat_nav[2]);
 	quat_nav_node[3]->setDoubleValue(quat_nav[3]);
 	///< [m/sec^2], accelerometer bias estimate
-	accelerometerBias_nav_mpsSq_node[0]->setDoubleValue(accelerometerBias_nav_mpsSq[0]);
-	accelerometerBias_nav_mpsSq_node[1]->setDoubleValue(accelerometerBias_nav_mpsSq[1]);
-	accelerometerBias_nav_mpsSq_node[2]->setDoubleValue(accelerometerBias_nav_mpsSq[2]);
+	accelBias_nav_mpss_node[0]->setDoubleValue(accelBias_nav_mpss[0]);
+	accelBias_nav_mpss_node[1]->setDoubleValue(accelBias_nav_mpss[1]);
+	accelBias_nav_mpss_node[2]->setDoubleValue(accelBias_nav_mpss[2]);
 	///< [rad/sec], rate gyro bias estimate
 	gyroBias_nav_rps_node[0]->setDoubleValue(gyroBias_nav_rps[0]);
 	gyroBias_nav_rps_node[1]->setDoubleValue(gyroBias_nav_rps[1]);
 	gyroBias_nav_rps_node[2]->setDoubleValue(gyroBias_nav_rps[2]);
 	///< [rad], covariance estimate for position
-	covariancePosition_nav_rads_node[0]->setDoubleValue(covariancePosition_nav_rads[0]);
-	covariancePosition_nav_rads_node[1]->setDoubleValue(covariancePosition_nav_rads[1]);
-	covariancePosition_nav_rads_node[2]->setDoubleValue(covariancePosition_nav_rads[2]);
+	covPos_nav_rad_node[0]->setDoubleValue(covPos_nav_rad[0]);
+	covPos_nav_rad_node[1]->setDoubleValue(covPos_nav_rad[1]);
+	covPos_nav_rad_node[2]->setDoubleValue(covPos_nav_rad[2]);
 	///< [rad], covariance estimate for velocity
-	covarianceVelocity_nav_rads_node[0]->setDoubleValue(covarianceVelocity_nav_rads[0]);
-	covarianceVelocity_nav_rads_node[1]->setDoubleValue(covarianceVelocity_nav_rads[1]);
-	covarianceVelocity_nav_rads_node[2]->setDoubleValue(covarianceVelocity_nav_rads[2]);
+	covVel_nav_rad_node[0]->setDoubleValue(covVel_nav_rad[0]);
+	covVel_nav_rad_node[1]->setDoubleValue(covVel_nav_rad[1]);
+	covVel_nav_rad_node[2]->setDoubleValue(covVel_nav_rad[2]);
 	///< [rad], covariance estimate for angles
-	covarianceAngles_nav_rads_node[0]->setDoubleValue(covarianceAngles_nav_rads[0]);
-	covarianceAngles_nav_rads_node[1]->setDoubleValue(covarianceAngles_nav_rads[1]);
-	covarianceAngles_nav_rads_node[2]->setDoubleValue(covarianceAngles_nav_rads[2]);
+	covAngles_nav_rad_node[0]->setDoubleValue(covAngles_nav_rad[0]);
+	covAngles_nav_rad_node[1]->setDoubleValue(covAngles_nav_rad[1]);
+	covAngles_nav_rad_node[2]->setDoubleValue(covAngles_nav_rad[2]);
 	///< [rad], covariance estimate for accelerometer bias
-	covarianceAccelBias_nav_rads_node[0]->setDoubleValue(covarianceAccelBias_nav_rads[0]);
-	covarianceAccelBias_nav_rads_node[1]->setDoubleValue(covarianceAccelBias_nav_rads[1]);
-	covarianceAccelBias_nav_rads_node[2]->setDoubleValue(covarianceAccelBias_nav_rads[2]);
+	covAccelBias_nav_rad_node[0]->setDoubleValue(covAccelBias_nav_rad[0]);
+	covAccelBias_nav_rad_node[1]->setDoubleValue(covAccelBias_nav_rad[1]);
+	covAccelBias_nav_rad_node[2]->setDoubleValue(covAccelBias_nav_rad[2]);
 	///< [rad], covariance estimate for rate gyro bias
-	covarianceGyroBias_nav_rads_node[0]->setDoubleValue(covarianceGyroBias_nav_rads[0]);
-	covarianceGyroBias_nav_rads_node[1]->setDoubleValue(covarianceGyroBias_nav_rads[1]);
-	covarianceGyroBias_nav_rads_node[2]->setDoubleValue(covarianceGyroBias_nav_rads[2]);
+	covGyroBias_nav_rad_node[0]->setDoubleValue(covGyroBias_nav_rad[0]);
+	covGyroBias_nav_rad_node[1]->setDoubleValue(covGyroBias_nav_rad[1]);
+	covGyroBias_nav_rad_node[2]->setDoubleValue(covGyroBias_nav_rad[2]);
 	err_type_nav_node->setIntValue(err_type_nav);
 
 }
@@ -878,3 +878,4 @@ void close_nav(void){
 	mat_free(temp1512);
 
 }
+
