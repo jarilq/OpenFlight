@@ -18,66 +18,66 @@
 #include "../props.hxx"
 
 //Control Surface Properties
-static SGPropertyNode *throcmd_control_nu_node = NULL;	///< [0-1], throttle command
-static SGPropertyNode *elevcmd_control_rads_node = NULL;		///< [rad], elevator command, +TED
-static SGPropertyNode *rudcmd_control_rads_node = NULL;		///< [rad], rudder command, +TEL
-static SGPropertyNode *lailcmd_control_rads_node = NULL;	///< [rad], left aileron command, +TED
-static SGPropertyNode *railcmd_control_rads_node = NULL;	///< [rad], right aileron command, +TED
-static SGPropertyNode *lfacmd_control_rads_node = NULL;	///< [rad], left flap command, +TED
-static SGPropertyNode *rflacmd_control_rads_node = NULL;	///< [rad], right flap command, +TED
+static SGPropertyNode *throttleCmd_ctrl_nu_node = NULL;	///< [0-1], throttle command
+static SGPropertyNode *elevatorCmd_ctrl_rad_node = NULL;		///< [rad], elevator command, +TED
+static SGPropertyNode *rudderCmd_ctrl_rad_node = NULL;		///< [rad], rudder command, +TEL
+static SGPropertyNode *lAileronCmd_ctrl_rad_node = NULL;	///< [rad], left aileron command, +TED
+static SGPropertyNode *rAileronCmd_ctrl_rad_node = NULL;	///< [rad], right aileron command, +TED
+static SGPropertyNode *lFlapCmd_ctrl_rad_node = NULL;	///< [rad], left flap command, +TED
+static SGPropertyNode *rFlapCmd_ctrl_rad_node = NULL;	///< [rad], right flap command, +TED
 
 //Control Surface Variables
-static double throcmd_control_nu = 0.0;		///< [0-1], throttle command
-static double elevcmd_control_rads = 0.0;			///< [rad], elevator command, +TED
-static double rudcmd_control_rads = 0.0; 		///< [rad], rudder command, +TEL
-static double lailcmd_control_rads = 0.0;		///< [rad], left aileron command, +TED
-static double railcmd_control_rads = 0.0;		///< [rad], right aileron command, +TED
-static double lfacmd_control_rads = 0.0;		///< [rad], left flap command, +TED
-static double rflacmd_control_rads = 0.0;		///< [rad], right flap command, +TED
+static double throttleCmd_ctrl_nu = 0.0;		///< [0-1], throttle command
+static double elevatorCmd_ctrl_rad = 0.0;			///< [rad], elevator command, +TED
+static double rudderCmd_ctrl_rad = 0.0; 		///< [rad], rudder command, +TEL
+static double lAileronCmd_ctrl_rad = 0.0;		///< [rad], left aileron command, +TED
+static double rAileronCmd_ctrl_rad = 0.0;		///< [rad], right aileron command, +TED
+static double lFlapCmd_ctrl_rad = 0.0;		///< [rad], left flap command, +TED
+static double rFlapCmd_ctrl_rad = 0.0;		///< [rad], right flap command, +TED
 
 extern void init_system_id(double time){
 	//Variables for concatenating path
 	char control[] = "/control";
 
 	//Property node initialization
-	throcmd_control_nu_node = fgGetNode(control,"/throcmd_control_nu", 0, true);
-	elevcmd_control_rads_node = fgGetNode(control,"/elevcmd_control_rads", 0, true);
-	rudcmd_control_rads_node = fgGetNode(control,"/rudcmd_control_rads", 0, true);
-	lailcmd_control_rads_node = fgGetNode(control,"/lailcmd_control_rads", 0, true);
-	railcmd_control_rads_node = fgGetNode(control,"/railcmd_control_rads", 0, true);
-	lfacmd_control_rads_node = fgGetNode(control,"/lfacmd_control_rads", 0, true);
-	rflacmd_control_rads_node = fgGetNode(control,"/rflacmd_control_rads", 0, true);
+	throttleCmd_ctrl_nu_node = fgGetNode(control,"/throttleCmd_ctrl_nu", 0, true);
+	elevatorCmd_ctrl_rad_node = fgGetNode(control,"/elevatorCmd_ctrl_rad", 0, true);
+	rudderCmd_ctrl_rad_node = fgGetNode(control,"/rudderCmd_ctrl_rad", 0, true);
+	lAileronCmd_ctrl_rad_node = fgGetNode(control,"/lAileronCmd_ctrl_rad", 0, true);
+	rAileronCmd_ctrl_rad_node = fgGetNode(control,"/rAileronCmd_ctrl_rad", 0, true);
+	lFlapCmd_ctrl_rad_node = fgGetNode(control,"/lFlapCmd_ctrl_rad", 0, true);
+	rFlapCmd_ctrl_rad_node = fgGetNode(control,"/rFlapCmd_ctrl_rad", 0, true);
 
 	//Initialize local variables
-	throcmd_control_nu = 0.0;
-	elevcmd_control_rads = 0.0;
-	rudcmd_control_rads = 0.0;
-	lailcmd_control_rads = 0.0;
-	railcmd_control_rads = 0.0;
-	lfacmd_control_rads = 0.0;
-	rflacmd_control_rads = 0.0;
+	throttleCmd_ctrl_nu = 0.0;
+	elevatorCmd_ctrl_rad = 0.0;
+	rudderCmd_ctrl_rad = 0.0;
+	lAileronCmd_ctrl_rad = 0.0;
+	rAileronCmd_ctrl_rad = 0.0;
+	lFlapCmd_ctrl_rad = 0.0;
+	rFlapCmd_ctrl_rad = 0.0;
 
 	//PUT THIS AT THE END OF CODE
-	throcmd_control_nu_node->setDoubleValue(throcmd_control_nu);
-	elevcmd_control_rads_node->setDoubleValue(elevcmd_control_rads);
-	rudcmd_control_rads_node->setDoubleValue(rudcmd_control_rads);
-	lailcmd_control_rads_node->setDoubleValue(lailcmd_control_rads);
-	railcmd_control_rads_node->setDoubleValue(railcmd_control_rads);
-	lfacmd_control_rads_node->setDoubleValue(lfacmd_control_rads);
-	rflacmd_control_rads_node->setDoubleValue(rflacmd_control_rads);
+	throttleCmd_ctrl_nu_node->setDoubleValue(throttleCmd_ctrl_nu);
+	elevatorCmd_ctrl_rad_node->setDoubleValue(elevatorCmd_ctrl_rad);
+	rudderCmd_ctrl_rad_node->setDoubleValue(rudderCmd_ctrl_rad);
+	lAileronCmd_ctrl_rad_node->setDoubleValue(lAileronCmd_ctrl_rad);
+	rAileronCmd_ctrl_rad_node->setDoubleValue(rAileronCmd_ctrl_rad);
+	lFlapCmd_ctrl_rad_node->setDoubleValue(lFlapCmd_ctrl_rad);
+	rFlapCmd_ctrl_rad_node->setDoubleValue(rFlapCmd_ctrl_rad);
 };
 
 extern void get_system_id(double time){
 
 
 	//PUT THIS AT THE END OF CODE
-	throcmd_control_nu_node->setDoubleValue(throcmd_control_nu);
-	elevcmd_control_rads_node->setDoubleValue(elevcmd_control_rads);
-	rudcmd_control_rads_node->setDoubleValue(rudcmd_control_rads);
-	lailcmd_control_rads_node->setDoubleValue(lailcmd_control_rads);
-	railcmd_control_rads_node->setDoubleValue(railcmd_control_rads);
-	lfacmd_control_rads_node->setDoubleValue(lfacmd_control_rads);
-	rflacmd_control_rads_node->setDoubleValue(rflacmd_control_rads);
+	throttleCmd_ctrl_nu_node->setDoubleValue(throttleCmd_ctrl_nu);
+	elevatorCmd_ctrl_rad_node->setDoubleValue(elevatorCmd_ctrl_rad);
+	rudderCmd_ctrl_rad_node->setDoubleValue(rudderCmd_ctrl_rad);
+	lAileronCmd_ctrl_rad_node->setDoubleValue(lAileronCmd_ctrl_rad);
+	rAileronCmd_ctrl_rad_node->setDoubleValue(rAileronCmd_ctrl_rad);
+	lFlapCmd_ctrl_rad_node->setDoubleValue(lFlapCmd_ctrl_rad);
+	rFlapCmd_ctrl_rad_node->setDoubleValue(rFlapCmd_ctrl_rad);
 };
 
 extern void close_system_id() {};
