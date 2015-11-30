@@ -1289,7 +1289,6 @@ inline SGPropertyNode *fgGetNode (char *partA, char *partB, bool create = false)
 	char temp[128];
 	snprintf(temp, 128, "%s%s", partA, partB);
 	const char *path = temp;
-	printf("creating %s\n", path);
 	return props->getNode(path, create);
 }
 
@@ -1298,7 +1297,6 @@ inline SGPropertyNode *fgGetNode (char *partA, char *partB, int index, bool crea
 	char temp[128];
 	snprintf(temp, 128, "%s%s", partA, partB);
 	const char *path = temp;
-	printf("creating %s\n", path);
 	return props->getNode(path, index, create);
 }
 
