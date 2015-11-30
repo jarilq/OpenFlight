@@ -164,10 +164,10 @@ void init_control()
 	p_RegX1 = p_RegX2 = p_RegY1 = p_RegY2 = 0; // roll rate ref model vars
 
 	// ======= Variables for concatenating path =======
-	char imu[1024] = "/imu";
-	char nav[1024] = "/nav";
-	char ad[1024] = "/ad";
-	char ctrl[1024] = "/ctrl";
+	char imu[] = "/imu";
+	char nav[] = "/nav";
+	char ad[] = "/ad";
+	char ctrl[] = "/ctrl";
 
 	printf("\tInitializing property nodes...\n");
 	// ======= Property node initialization =======
@@ -175,7 +175,7 @@ void init_control()
 	// TODO: determine how to get aircraft characteristics
 
 	// Sensor variables
-	/*
+
 	p_imu_rps_node = fgGetNode(imu, "/p_imu_rps", 0, true); 					// [rad/sec], roll rate
 	q_imu_rps_node = fgGetNode(imu, "/q_imu_rps", 0, true); 					// [rad/sec], pitch rate
 	r_imu_rps_node = fgGetNode(imu, "/r_imu_rps", 0, true); 					// [rad/sec], yaw rate
@@ -202,35 +202,6 @@ void init_control()
 	pdotAlloc_ctrl_rps2_node = fgGetNode(ctrl, "/pdotAlloc_ctrl_rps2", 0, true);// [rad/sec^2], roll accel to control allocation
 	qdotAlloc_ctrl_rps2_node = fgGetNode(ctrl, "/qdotAlloc_ctrl_rps2", 0, true);// [rad/sec^2], pitch accel to control allocation
 	rdotAlloc_ctrl_rps2_node = fgGetNode(ctrl, "/rdotAlloc_ctrl_rps2", 0, true);// [rad/sec^2], yaw accel to control
-	*/
-
-	p_imu_rps_node = fgGetNode("/imu/p_imu_rps", 0, true); 					// [rad/sec], roll rate
-	q_imu_rps_node = fgGetNode("/imu/q_imu_rps", 0, true); 					// [rad/sec], pitch rate
-	r_imu_rps_node = fgGetNode("/imu/r_imu_rps", 0, true); 					// [rad/sec], yaw rate
-	rollAngle_nav_rads_node = fgGetNode("/nav/rollAngle_nav_rads", 0, true); 	// [rad], roll angle
-	pitchAngle_nav_rads_node = fgGetNode("/nav/pitchAngle_nav_rads", 0, true); // [rad], pitch angle
-	aoa_ad_rads_node = fgGetNode("/ad/aoa_ad_rads", 0, true); 					// [rad], angle of attack
-	aos_ad_rads_node = fgGetNode("/ad/aos_ad_rads", 0, true); 					// [rad], sideslip angle
-	ias_filt_ad_mps_node = fgGetNode("/ad/ias_filt_ad_mps", 0, true); 			// [m/s], filtered airspeed
-	pd_ad_kpa_node = fgGetNode("/ad/pd_ad_kpa", 0, true); 						// [kPa], dynamic pressure
-
-	// Control variables
-	da_r_ctrl_rads_node = fgGetNode("/ctrl/da_r_ctrl_rads", 0, true);			// [rad], right aileron deflection
-	de_ctrl_rads_node = fgGetNode("/ctrl/de_ctrl_rads", 0, true);				// [rad], elevator deflection
-	dr_ctrl_rads_node = fgGetNode("/ctrl/dr_ctrl_rads", 0, true);				// [rad], rudder deflection
-	df_r_ctrl_rads_node = fgGetNode("/ctrl/df_r_ctrl_rads", 0, true);			// [rad], right flap deflection
-	phiCmd_ctrl_rads_node = fgGetNode("/ctrl/phiCmd_ctrl_rads", 0, true);		// [rad], roll command
-	theCmd_ctrl_rads_node = fgGetNode("/ctrl/theCmd_ctrl_rads", 0, true);		// [rad], pitch command
-	pCmd_ctrl_rps_node = fgGetNode("/ctrl/pCmd_ctrl_rps", 0, true);			// [rad/sec], roll rate command
-	qCmd_ctrl_rps_node = fgGetNode("/ctrl/qCmd_ctrl_rps", 0, true);			// [rad/sec], pitch rate command
-	rCmd_ctrl_rps_node = fgGetNode("/ctrl/rCmd_ctrl_rps", 0, true);			// [rad/sec], yaw rate command
-	pdotCmd_ctrl_rps2_node = fgGetNode("/ctrl/pdptCmd_ctrl_rps2", 0, true);	// [rad/sec^2], roll accel command
-	qdotCmd_ctrl_rps2_node = fgGetNode("/ctrl/qdptCmd_ctrl_rps2", 0, true);	// [rad/sec^2], pitch accel command
-	rdotCmd_ctrl_rps2_node = fgGetNode("/ctrl/rdptCmd_ctrl_rps2", 0, true);	// [rad/sec^2], yaw accel command
-	pdotAlloc_ctrl_rps2_node = fgGetNode("/ctrl/pdotAlloc_ctrl_rps2", 0, true);// [rad/sec^2], roll accel to control allocation
-	qdotAlloc_ctrl_rps2_node = fgGetNode("/ctrl/qdotAlloc_ctrl_rps2", 0, true);// [rad/sec^2], pitch accel to control allocation
-	rdotAlloc_ctrl_rps2_node = fgGetNode("/ctrl/rdotAlloc_ctrl_rps2", 0, true);// [rad/sec^2], yaw accel to control
-
 
 	printf("\tReading values...\n");
 	// ======= Read values from property tree =======
@@ -351,10 +322,12 @@ static void dynamic_inverse()
 	qdotAlloc_ctrl_rps2 = qdotCmd_ctrl_rps2 - pqrdot_inv[1][0];
 	rdotAlloc_ctrl_rps2 = rdotCmd_ctrl_rps2 - pqrdot_inv[2][0];
 
+	printf("pdotAlloc_ctrl: %f [rad/s^2]\n", pdotAlloc_ctrl_rps2);
 	// Set values to property tree
 	pdotAlloc_ctrl_rps2_node->setDoubleValue(pdotAlloc_ctrl_rps2);
 	qdotAlloc_ctrl_rps2_node->setDoubleValue(qdotAlloc_ctrl_rps2);
 	rdotAlloc_ctrl_rps2_node->setDoubleValue(rdotAlloc_ctrl_rps2);
+	printf("pdotAlloc_ctrl_node: %f [rad/s^2]\n", pdotAlloc_ctrl_rps2_node->getDoubleValue());
 
 	// TODO: Free matrices
 }
