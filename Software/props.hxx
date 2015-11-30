@@ -18,13 +18,13 @@
 #define PROPS_STANDALONE 0
 #endif
 
-#include <string.h>
 #include <vector>
 
 #if PROPS_STANDALONE
 
 #include <string.h>
 #include <iostream>
+#include <stdio.h>
 
 using std::string;
 using std::vector;
@@ -1286,16 +1286,20 @@ extern SGPropertyNode *props;
 // borrowed from fg_props.cxx
 inline SGPropertyNode *fgGetNode (char *partA, char *partB, bool create = false) //changed from original file to allow concatenation
 {
-	strncat(partA, partB, sizeof(partA));
-	const char *path = partA;
-  return props->getNode(path, create);
+	char temp[128];
+	snprintf(temp, 128, "%s%s", partA, partB);
+	const char *path = temp;
+	printf("creating %s\n", path);
+	return props->getNode(path, create);
 }
 
 inline SGPropertyNode *fgGetNode (char *partA, char *partB, int index, bool create = false)//changed from original file to allow concatenation
 {
-	strncat(partA, partB, sizeof(partA));
-	const char *path = partA;
-  return props->getNode(path, index, create);
+	char temp[128];
+	snprintf(temp, 128, "%s%s", partA, partB);
+	const char *path = temp;
+	printf("creating %s\n", path);
+	return props->getNode(path, index, create);
 }
 
 #endif // __PROPS_HXX
