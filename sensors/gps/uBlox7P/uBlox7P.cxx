@@ -47,11 +47,9 @@ int initGPS() {
 
 int readGPS(struct gps *gpsData_ptr) {
     // gps time of week
-    static unsigned long prevTOW = 0;
+    static unsigned long prevTOW;
 
     if( processGPS() ) {
-
-        printf("DATA!\n");
 
         // assign GPS data
         gpsData_ptr->lat_rad    =   gpsPacket.lat/10000000.0 * D2R; 
@@ -64,20 +62,23 @@ int readGPS(struct gps *gpsData_ptr) {
         gpsData_ptr->vAcc_m     =   gpsPacket.vAcc/1000.0;
         gpsData_ptr->sAcc_mps   =   gpsPacket.sAcc/1000.0;
         gpsData_ptr->satVisible =   gpsPacket.numSV;
+    }
 
         // 3D-Fix
-        if(gpsPacket.fixType == 0x03) {
-            gpsData_ptr->valid  = 1;
-        }
-        else{
-            gpsData_ptr->valid  = 0;
-        }
+    if(gpsPacket.fixType == 0x03) {
+        gpsData_ptr->valid  = 1;
+    }
+    else{
+        gpsData_ptr->valid  = 0;
+    }
 
-        // GPS updated
-        if((gpsPacket.iTOW - prevTOW) > 0) {
-            gpsData_ptr->newData = 1;
-            prevTOW = gpsPacket.iTOW;
-        }
+    // GPS updated
+    if((gpsPacket.iTOW - prevTOW) > 0) {
+        gpsData_ptr->newData = 1;
+        prevTOW = gpsPacket.iTOW;
+    }
+    else{
+        gpsData_ptr->newData = 0;
     }
 
     return 0;
