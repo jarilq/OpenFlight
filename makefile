@@ -3,20 +3,22 @@
 #
 # University of Minnesota 
 # Aerospace Engineering and Mechanics 
-# Copyright 2011 Regents of the University of Minnesota. All rights reserved.
+# Copyright 2015 Regents of the University of Minnesota. All rights reserved.
 # 
 ##############################################################################
 
-#########################################################################
-
+# compiler
 CC=arm-linux-gnueabihf-g++
 
-# Code to be compiled
+# configuration
+GPS = uBlox7P
+
+# code to be compiled
 OBJ =\
-sensors/gps/uBlox7P.cxx \
+sensors/gps/$(GPS)/$(GPS).cxx \
 main.cxx
 
-#### RULES ####
+# rules
 all: output display
 
 output: $(OBJ)
@@ -28,11 +30,13 @@ clean:
 
 display: 
 	@ echo
-	@ echo "#################### UMN UAV Software ######################"
+	@ echo "##### UMN UAV Software #####"
 	@ echo "Successful build with the following configuration:"
+	@ echo "GPS: "$(GPS)
 	@ echo ""
 	@ echo "University of Minnesota"
 	@ echo "Aerospace Engineering and Mechanics"
-	@ echo "Copyright 2011 Regents of the University of Minnesota. All rights reserved."
+	@ echo "Copyright 2015 Regents of the University of Minnesota. All rights reserved."
 	@ echo "www.uav.aem.umn.edu"
 	@ echo "" 
+
