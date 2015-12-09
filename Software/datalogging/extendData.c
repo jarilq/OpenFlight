@@ -28,6 +28,8 @@
 #define NX     10
 #define NY     5
 
+/*NOTES FOR MODIFYING THIS CODE IN THE FUTURE.  Change the chunk size to make it more efficient.  Change the dataset size and the offset size--right now it is set to create arrays of 3x3*/
+
 int
 main (void)
 {
@@ -50,16 +52,22 @@ main (void)
 
     herr_t      status;
 
-    int         data1[3][3] = { {1, 1, 1},       /* data to write */
-				{1, 1, 1},
-				{1, 1, 1} };
+    int         data1[3][3];      /* data to write */ 
 
-    int         data2[3][3] = { {1, 2, 3},
-				{4, 5, 6},
-				{7, 8, 9} };
+    int         data2[3][3];
 
     int fillvalue = 0;
     int n=3; //this number is used for offsetting purposes in the loop
+
+	/*take in data to initialize the dataset*/
+	printf("Initialize first 3x3 dataset (press enter after each num): ");
+	for(int k=0; k<3; k++)
+	{
+		for(int n=0; n<3; n++)
+		{
+			scanf("%d", &data1[k][n]);
+		}
+	}
 
     /*
      * Create the data space with unlimited dimensions.
@@ -108,10 +116,21 @@ main (void)
     status = H5Dwrite(dataset, H5T_NATIVE_INT, dataspace, filespace,
 		      H5P_DEFAULT, data1);
 
-for(int i=0; i<3; i++)
+
+for(int i=0; i<3; i++) /*FOR REAL FLIGHT CODE. This condition should be changed so it relies on one of the variables that will stop at the end of a flight.  That will make this code stop collecting data when the airplane is not in flight.  It could be a bool statement for aircraft flying.  Example: while(aircraftFlying == true) ***If this code is changed to anything other than a for statment, create a variable int i outside the loop and i++ at the end of the loop. This is necessary so the offset variable will work correctly.*/
 {
-//START OF SECOND DATA SET WRITING
- /*
+/*START OF NEXT DATA SET WRITING*/
+
+	/*take in data to initialize the dataset*/
+	printf("Initialize next 3x3 dataset (press enter after each num): ");
+	for(int k=0; k<3; k++)
+	{
+		for(int n=0; n<3; n++)
+		{
+			scanf("%d", &data2[k][n]);
+		}
+	}
+    /*
      * Extend the dataset. Dataset becomes 10 x 3.
      */
     dims[0]   = dims[0] + dims2[0];
@@ -152,4 +171,3 @@ for(int i=0; i<3; i++)
 
     return 0;
 }
-
