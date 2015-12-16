@@ -1,12 +1,3 @@
-/*
- ============================================================================
- Name        : main.c
- Author      : Holly Newton
- Version     :
- Copyright   : Your copyright notice
- Description :
- ============================================================================
- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,6 +10,7 @@
 #include "system_id/systemid_interface.h"
 #include "mission/mission_interface.h"
 #include "PREVIOUSglobaldefs.h"
+#include "datalogging/datalog_interface.h"
 
 using namespace std;
 
@@ -26,10 +18,8 @@ int main(void)
 {
 	int autop = 0;
 	props = new SGPropertyNode;
-	//struct  nav navData;
 	//struct sensordata sensorData;
 	//struct control controlData;
-	//struct mission missionData;
 	double time;
 	/*init_dataAq();
 	init_sensorProc();*/
@@ -40,6 +30,7 @@ int main(void)
 	//init_control(time, &sensorData, &navData, &controlData, &missionData);
 	//init_controlAl();
 	init_system_id(time);
+	init_datalog();
 	//init_actuators();
 
 	while (1)
@@ -56,10 +47,12 @@ int main(void)
 			//get_control(time, &sensorData, &navData, &controlData, &missionData);
 			//get_controlAl();
 			get_system_id(time);
+			get_datalog();
 			//get_actuators();
 		}
 	}
 	close_mission();
 	close_nav();
 	close_system_id();
+	close_datalog();
 }
