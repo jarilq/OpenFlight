@@ -34,15 +34,17 @@ int main(void)
  hsize_t        count;      /* Number of records in the table */
 
  int            x;          /* Loop variable */
-int p;
+ int 		p;
 
     /* Buffers to hold data */
  int writeBuffer[5];
 
+
+//extern void init_datalog(){  //UNCOMMENT
    /* Initialize buffers */
  for(x=0; x<5; x++)
  {
-     writeBuffer[x]=x;
+     writeBuffer[x]=x*2;/*FOR FINAL VERSION replace this part so the buffer value is determined by the sensor readings*/
  }
 
     /* Create a file using default properties */
@@ -54,15 +56,22 @@ int p;
  ptable = H5PTcreate_fl(fid, "Packet Test Dataset", H5T_NATIVE_INT, (hsize_t)100, 5);
  if(ptable == H5I_INVALID_HID)
      goto out;
+//};  //UNCOMMENT
 
+//extern void get_datalog(){};//UNCOMMENT
+
+//extern void run_datalog() {//UNCOMMENT
     /* Writes packets to the packet table */
-for(p=0; p<5; p++)
+for(p=0; p<5; p++) /*NOTE change the condition to run until the aircraft is done flying*/
 {
  err = H5PTappend(ptable, (hsize_t)1, &(writeBuffer[p]) );//appends more packets to the end
  if(err < 0)
      goto out;
 }
+//};  //UNCOMMENT
 
+
+//extern void close_datalog() { //UNCOMMENT
     /* Close the packet table */
  err = H5PTclose(ptable);
  if(err < 0)
@@ -77,4 +86,5 @@ for(p=0; p<5; p++)
     H5PTclose(ptable);
     H5Fclose(fid);
     return -1;
-}
+//}; //UNCOMMENT
+}//delete when changing format?
