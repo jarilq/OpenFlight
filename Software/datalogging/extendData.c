@@ -22,28 +22,25 @@
 
 #include "hdf5.h"
 
-#define H5FILE_NAME        "extendData.h5"
+#define H5FILE_NAME	"extendData.h5"
 #define DATASETNAME "ExtendibleArray"
-#define RANK         2
-#define NX     10
-#define NY     5
+#define RANK		2
+#define NX     		10
+#define NY     		5
 
-/*NOTES FOR MODIFYING THIS CODE IN THE FUTURE.  Change the chunk size to make it more efficient.  Change the dataset size and the offset size--right now it is set to create arrays of 3x3*/
+/*NOTES FOR MODIFYING THIS CODE IN THE FUTURE.  Change the chunk size to make it more efficient.
+ *Change the dataset size and the offset size--right now it is set to create arrays of 3x3*/
 
 int
 main (void)
 {
-    hid_t       file;                          /* handles */
+    hid_t       file;					/* handles */
     hid_t       dataspace, dataset;
     hid_t       filespace;
     hid_t       cparms;
-    hsize_t      dims[2]  = { 3, 3};            /*
-						 * dataset dimensions
-						 * at the creation time
-						 */
-    hsize_t      dims1[2] = { 3, 3};            /* data1 dimensions */
-    hsize_t      dims2[2] = { 3, 3};            /* data2 dimensions */
-
+    hsize_t      dims[2]  = { 3, 3};	/* dataset dimensionsat the creation time */
+    hsize_t      dims1[2] = { 3, 3};	/* data1 dimensions */
+    hsize_t      dims2[2] = { 3, 3};	/* data2 dimensions */
 
     hsize_t      maxdims[2] = {H5S_UNLIMITED, H5S_UNLIMITED};
     hsize_t      chunk_dims[2] ={2, 5};
@@ -53,7 +50,6 @@ main (void)
     herr_t      status;
 
     int         data1[3][3];      /* data to write */ 
-
     int         data2[3][3];
 
     int fillvalue = 0;
