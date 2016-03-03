@@ -14,7 +14,7 @@
 #include <cryptopp/files.h>
 #include <cryptopp/hex.h>
 
-#define FILE "UltraStick25e_config.mat"
+#define FILE "aircraft/UltraStick25e_config.mat"
 
 // ======= Local Function =======
 static double do_dset(char *, hid_t);
