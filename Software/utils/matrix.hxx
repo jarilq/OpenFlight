@@ -19,11 +19,6 @@
 #ifndef MATRIX_H_
 #define MATRIX_H_
 #include <stdio.h>
-
-#ifdef __cplusplus
-extern "C"{
-#endif
-
 /*
 *-----------------------------------------------------------------------------
 *	internal matrix structure
@@ -87,7 +82,7 @@ MATRIX mat_fdump	(MATRIX, FILE *fp);
 MATRIX mat_fdumpf   (MATRIX, char *, FILE *fp);
 MATRIX mat_add		(MATRIX, MATRIX, MATRIX);
 MATRIX mat_sub		(MATRIX, MATRIX, MATRIX);
-MATRIX mat_mul		(MATRIX, MATRIX, MATRIX);
+MATRIX mat_mul		(MATRIX, MATRIX,MATRIX);
 MATRIX mat_transmul	(MATRIX A,MATRIX B, MATRIX C);
 MATRIX mat_mymul	(MATRIX A,MATRIX B, MATRIX C, short m);
 MATRIX mat_mymul1	(MATRIX A,MATRIX B, MATRIX C, short m);
@@ -115,9 +110,5 @@ MATRIX mat_round (MATRIX X, MATRIX C);
 double mat_dot (MATRIX X, MATRIX Y);
 MATRIX mat_scalMult (MATRIX X,double A, MATRIX C);
 MATRIX mat_scalMul(MATRIX X,double A, MATRIX C);
-
-#ifdef __cplusplus
-	}
-#endif
-
+MATRIX mat_cross(MATRIX A, MATRIX B, MATRIX C);
 #endif

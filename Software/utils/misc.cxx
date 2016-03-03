@@ -9,18 +9,19 @@
  *
  * $Id: misc.c 752 2011-12-21 20:14:23Z murch $
  */
+#include "misc.hxx"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <termios.h>
 #include <math.h>
 #include <sched.h>
-#include <cyg/posix/signal.h>
-
-#include "misc.h"
+#include <time.h>
 
 #define STATUS_MSG_SIZE  103
 char statusMsg[STATUS_MSG_SIZE]={'\0',};		// TX buffer for status/diagnostic messages to dnlink (system message packet)

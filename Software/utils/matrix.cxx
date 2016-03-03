@@ -10,16 +10,14 @@
  * $Id: matrix.c 929 2012-10-29 16:50:59Z joh07594 $
  */
 
+#include "matrix.hxx"
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <math.h>
-#include "matrix.h"
-
-
-/////////////////////////////////// comment out for SIL sim
 #include <unistd.h>
 #include <termios.h>
 //////////////////////////////////////////////////////////////
@@ -396,7 +394,7 @@ MATRIX mat_dump( MATRIX A )
 	if (A==NULL)
 		return(NULL);
 	else
-    	return(mat_fdumpf(A, "%f ", stdout));
+    	return(mat_fdumpf(A, (char *)"%f ", stdout));
 }
 
 
@@ -416,7 +414,7 @@ MATRIX mat_dumpf(MATRIX A,char *s)
 
 MATRIX mat_fdump(MATRIX A,FILE *fp)
 {
-    return (mat_fdumpf(A, "%f ", fp));
+    return (mat_fdumpf(A, (char *)"%f ", fp));
 }
 
 MATRIX mat_fdumpf(MATRIX A,char *s,FILE *fp)
