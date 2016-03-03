@@ -25,9 +25,9 @@
 /*     Include Pertinent Header Files */
 
 #include <math.h>
-#include "../utils/matrix.h"
 #include "nav_functions.hxx"
 #include "../props.hxx"
+#include "../utils/matrix.hxx"
 
 /*=================================================================*/
 MATRIX eul2dcm(MATRIX euler, MATRIX dcm)

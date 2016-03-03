@@ -26,16 +26,11 @@
 #include <math.h>
 #include <pthread.h>
 #include <sched.h>
-//#include <cyg/posix/pthread.h>
-//#include <cyg/kernel/kapi.h>
-//#include <cyg/cpuload/cpuload.h>
 
-//#include "../globaldefs.h"
 #include "../props.hxx"
+#include "../utils/matrix.hxx"
 //#include "../extern_vars.h"
-#include "../utils/matrix.h"
-#include "../utils/misc.h"
-
+#include "../utils/misc.hxx"
 #include "nav_functions.hxx"
 #include "nav_interface.h"
 
