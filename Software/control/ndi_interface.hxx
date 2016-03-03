@@ -9,13 +9,8 @@
 #define CONTROL_NDI_INTERFACE_H_
 
 void init_control();
-/*void get_control(struct control *controlData_ptr);
-static void dynamic_inverse(struct control *controlData_ptr);
-static void level4_control(struct control *controlData_ptr, double dtime);
-static void level3_control(struct control *controlData_ptr, double dtime);
-*/
-
 void get_control();
+void close_control();
 
 // Limits placed on the get_control outputs
 #define		RUDDER_AUTH_MAX		0.4363		///< [rad], 25 deg, limit on get_control law output
