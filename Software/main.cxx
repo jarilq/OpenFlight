@@ -10,9 +10,26 @@
 #include "datalogging/datalog_interface.hxx"
 #include "props.hxx"
 
-int main(void)
+int main(int argc, char **argv)
 {
 	int autop = 1;
+
+	// Select aircraft config file
+	char *FILE;
+	printf("*************%s selected*************\n\n", argv[1]);
+	if (strcmp(argv[1],"THOR") == 0)
+	{
+		FILE = (char *)"aircraft/thor.h5";
+	}
+	else if (strcmp(argv[1],"TYR") == 0)
+	{
+		FILE = (char *)"aircraft/tyr.h5";
+	}
+	else
+	{
+		printf("ERROR: Aircraft not defined\n");
+		return -1;
+	}
 
 	props = new SGPropertyNode;
 	double time;
@@ -23,7 +40,7 @@ int main(void)
 	//init_nav();
 	//init_telemetry();
 	init_datalog();
-	get_config();
+	get_config(FILE);
 	init_control();
 	//init_controlAl();
 	//init_system_id(time);
